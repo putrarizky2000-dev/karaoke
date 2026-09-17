@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>Studio Karaoke Neon Pro - Smart Lyrics Edition</title>
+  <!-- Mencegah mesin pencari Google mengindeks halaman privat ini -->
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <title>Studio Karaoke Neon Pro - Private Edition</title>
   <!-- YouTube Official Player API -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <style>
@@ -26,6 +28,38 @@
       display: flex; flex-direction: column; align-items: center; min-height: 100vh;
       overflow-x: hidden;
     }
+
+    /* === GERBANG KUNCI PASSWORD PRIVAT === */
+    #privateLockGate {
+      position: fixed; inset: 0; background: radial-gradient(circle, #101720 0%, #060709 100%);
+      z-index: 999999; display: flex; justify-content: center; align-items: center; padding: 20px;
+    }
+    .lock-box {
+      background: linear-gradient(145deg, #18202a, #0b0f14);
+      border: 2px solid var(--neon-cyan); border-radius: 20px;
+      padding: clamp(25px, 5vw, 40px); width: 100%; max-width: 400px;
+      text-align: center; box-shadow: 0 0 45px rgba(102, 252, 241, 0.35);
+    }
+    .lock-box span { font-size: 3.5rem; display: block; margin-bottom: 12px; filter: drop-shadow(0 0 12px var(--neon-cyan)); }
+    .lock-box h2 { color: var(--neon-cyan); font-size: 1.5rem; margin-bottom: 6px; }
+    .lock-box p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 22px; }
+    
+    .password-input-wrapper {
+      position: relative; width: 100%; margin-bottom: 12px;
+    }
+    .password-input {
+      width: 100%; padding: 14px 45px 14px 16px; font-size: 1rem;
+      background: #060709; border: 2px solid #45a29e; border-radius: 10px; color: #fff;
+      outline: none; transition: 0.2s;
+    }
+    .password-input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(102, 252, 241, 0.5); }
+    .btn-toggle-pass {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: transparent; border: none; cursor: pointer; font-size: 1.2rem; padding: 4px;
+      opacity: 0.8; transition: 0.2s;
+    }
+    .btn-toggle-pass:hover { opacity: 1; transform: translateY(-50%) scale(1.1); }
+    .lock-err { color: var(--neon-red); font-size: 0.85rem; margin-bottom: 14px; display: none; font-weight: bold; }
     
     header {
       text-align: center; margin-bottom: 15px; width: 100%; max-width: 1200px;
@@ -226,10 +260,29 @@
 </head>
 <body>
 
+  <!-- GERBANG KUNCI PASSWORD PRIVAT -->
+  <div id="privateLockGate">
+    <div class="lock-box">
+      <span>🔐</span>
+      <h2>BIIH KARAOKE PRIVAT</h2>
+      <p>Akses khusus ruangan Khairi. Masukkan password untuk membuka studio:</p>
+      
+      <div class="password-input-wrapper">
+        <input type="password" id="passInput" class="password-input" placeholder="Ketik kata sandi di sini..." autofocus onkeydown="if(event.key==='Enter') verifikasiPassword()">
+        <button type="button" class="btn-toggle-pass" onclick="toggleLihatPassword()" title="Lihat/Sembunyikan password">👁️</button>
+      </div>
+      
+      <div id="lockErrorMsg" class="lock-err">⚠️ Password salah! Silakan coba lagi.</div>
+      
+      <button class="btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;" onclick="verifikasiPassword()">🔓 Buka Studio</button>
+    </div>
+  </div>
+
   <header>
     <h1>🎤 BIIH KARAOKE</h1>
     <p>KARAOKENYA KHAIRI</p>
     <div class="header-btns">
+      <button class="header-btn" onclick="kunciUlangStudio()">🔒 Kunci</button>
       <button class="header-btn" onclick="openApiKeyModal()">🔑 API Key</button>
       <button class="header-btn" onclick="toggleFullscreen()">🖥️ Layar Penuh</button>
     </div>
@@ -314,7 +367,7 @@
       </div>
       <div style="display: flex; flex-direction: column; gap: 14px;">
         <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
-          Bernyanyilah langsung menggunakan mikrofon eksternal / mixer Anda. Begitu lagu selesai diputar sampai habis, skor otomatis akan dinilai secara acak!
+          Studio privat aktif. Bernyanyilah langsung menggunakan mikrofon eksternal Anda. Skor karaoke otomatis dinilai secara acak begitu lagu tamat!
         </p>
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
           <button class="btn-score" onclick="hitungSkorOtomatis(true)">🏁 Tes Munculkan Skor</button>
@@ -366,6 +419,51 @@
   </div>
 
   <script>
+    // === 0. SISTEM KEAMANAN PASSWORD PRIVAT ===
+    // UBAH KATA SANDI (PASSWORD) DI BAWAH INI SESUAI KEINGINAN ANDA:
+    const MASTER_PASSWORD = "khairi";
+
+    function periksaStatusKunci() {
+      const isUnlocked = sessionStorage.getItem('biih_karaoke_unlocked');
+      if (isUnlocked === 'true') {
+        document.getElementById('privateLockGate').style.display = 'none';
+      } else {
+        document.getElementById('privateLockGate').style.display = 'flex';
+        const p = document.getElementById('passInput');
+        if (p) p.focus();
+      }
+    }
+
+    function verifikasiPassword() {
+      const input = document.getElementById('passInput').value;
+      const err = document.getElementById('lockErrorMsg');
+      if (input === MASTER_PASSWORD) {
+        sessionStorage.setItem('biih_karaoke_unlocked', 'true');
+        document.getElementById('privateLockGate').style.display = 'none';
+        err.style.display = 'none';
+      } else {
+        err.style.display = 'block';
+        document.getElementById('passInput').value = '';
+        document.getElementById('passInput').focus();
+      }
+    }
+
+    function toggleLihatPassword() {
+      const p = document.getElementById('passInput');
+      p.type = (p.type === 'password' ? 'text' : 'password');
+    }
+
+    function kunciUlangStudio() {
+      sessionStorage.removeItem('biih_karaoke_unlocked');
+      document.getElementById('passInput').value = '';
+      document.getElementById('lockErrorMsg').style.display = 'none';
+      document.getElementById('privateLockGate').style.display = 'flex';
+      document.getElementById('passInput').focus();
+    }
+
+    // Periksa password saat web pertama kali dibuka
+    window.addEventListener('DOMContentLoaded', periksaStatusKunci);
+
     // === 1. AUDIO SOUNDBOARD ===
     let soundMasterVolume = 1.0;
     const SOUND_URLS = {
@@ -492,7 +590,6 @@
       ambilLirikMultiTahap(title);
     }
 
-    // DETEKSI AKHIR VIDEO UNTUK SKOR OTOMATIS
     function onPlayerStateChange(event) {
       if (event.data === YT.PlayerState.ENDED) {
         hitungSkorOtomatis(false);
@@ -871,50 +968,27 @@
       document.getElementById('manualLyricsModal').style.display = 'none';
     }
 
-    // === 6. SKOR ACAK KARAOKE (MESIN KARAOKE REALISTIS) ===
+    // === 6. SKOR ACAK KARAOKE ===
     function hitungSkorOtomatis(isManual = false) {
       if (isScoredThisSong && !isManual) return;
       isScoredThisSong = true;
 
-      // Tier skor acak yang seru dan realistis
       const tiers = [
-        { 
-          min: 94, max: 99, 
-          grade: "🏆 GRADE S (DIVA BINTANG)", 
-          comment: "GOKIL! Vokal Anda membakar seisi ruangan bagaikan diva internasional!", 
-          sounds: ['applause', 'cheer', 'victory'] 
-        },
-        { 
-          min: 85, max: 93, 
-          grade: "⭐ GRADE A (PENYANYI TOP)", 
-          comment: "Luar biasa merdu! Penonton sangat menikmati lantunan suara Anda!", 
-          sounds: ['applause', 'cheer'] 
-        },
-        { 
-          min: 75, max: 84, 
-          grade: "👏 GRADE B (ASIK BANGET)", 
-          comment: "Penampilan yang stabil dan asyik! Terus pertahankan ritmenya!", 
-          sounds: ['applause'] 
-        },
-        { 
-          min: 60, max: 74, 
-          grade: "👎 GRADE C (FALS TAPI HEBOH)", 
-          comment: "Lagu ke mana nada ke mana, tapi yang penting goyang dan percaya diri!", 
-          sounds: ['boo'] 
-        }
+        { min: 94, max: 99, grade: "🏆 GRADE S (DIVA BINTANG)", comment: "GOKIL! Vokal Anda membakar seisi ruangan bagaikan diva internasional!", sounds: ['applause', 'cheer', 'victory'] },
+        { min: 85, max: 93, grade: "⭐ GRADE A (PENYANYI TOP)", comment: "Luar biasa merdu! Penonton sangat menikmati lantunan suara Anda!", sounds: ['applause', 'cheer'] },
+        { min: 75, max: 84, grade: "👏 GRADE B (ASIK BANGET)", comment: "Penampilan yang stabil dan asyik! Terus pertahankan ritmenya!", sounds: ['applause'] },
+        { min: 60, max: 74, grade: "👎 GRADE C (FALS TAPI HEBOH)", comment: "Lagu ke mana nada ke mana, tapi yang penting goyang dan percaya diri!", sounds: ['boo'] }
       ];
 
-      // Peluang acak realistis: Grade A & S paling sering muncul
       const randSeed = Math.random();
       let selectedTier;
-      if (randSeed > 0.60) selectedTier = tiers[0];       // 40% kemungkinan Grade S
-      else if (randSeed > 0.20) selectedTier = tiers[1];  // 40% kemungkinan Grade A
-      else if (randSeed > 0.06) selectedTier = tiers[2];  // 14% kemungkinan Grade B
-      else selectedTier = tiers[3];                       // 6% lucu-lucuan Grade C
+      if (randSeed > 0.60) selectedTier = tiers[0];
+      else if (randSeed > 0.20) selectedTier = tiers[1];
+      else if (randSeed > 0.06) selectedTier = tiers[2];
+      else selectedTier = tiers[3];
 
       const finalScore = Math.floor(Math.random() * (selectedTier.max - selectedTier.min + 1)) + selectedTier.min;
 
-      // Putar efek suara penonton otomatis
       if (selectedTier.sounds.includes('applause')) playRealSound('applause');
       if (selectedTier.sounds.includes('cheer')) setTimeout(() => playRealSound('cheer'), 400);
       if (selectedTier.sounds.includes('victory')) setTimeout(() => playRealSound('victory'), 800);
