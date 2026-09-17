@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>Studio Karaoke Neon Pro - In-Stage Player</title>
+  <title>Studio Karaoke Neon Pro - Auto Fullscreen & Clean Stage</title>
   <style>
     :root {
       --bg: #0b0c10;
@@ -204,7 +204,7 @@
 
   <header>
     <h1>🎤 KARAOKE LIVE STUDIO PRO</h1>
-    <p>100% Putar Langsung di Panggung • Cari Penyanyi / Artis Bebas</p>
+    <p>100% Langsung Main di Panggung • Bebas Cari Lagu Apa Saja</p>
     <div class="header-btns">
       <button class="header-btn" onclick="openApiKeyModal()">🔑 API Key</button>
       <button class="header-btn" onclick="toggleFullscreen()">🖥️ Layar Penuh</button>
@@ -215,13 +215,13 @@
   <div class="search-panel">
     <div class="search-form">
       <div class="input-wrapper">
-        <input type="text" id="searchInput" placeholder="Ketik nama lagu / artis (misal: naykilla, dewa 19 kangen, adele)..." autocomplete="off" oninput="fetchGoogleSuggest(this.value)">
+        <input type="text" id="searchInput" placeholder="Ketik nama lagu / artis (misal: naykilla, dewa 19, sheila on 7)..." autocomplete="off" oninput="fetchGoogleSuggest(this.value)">
         <ul id="suggestList"></ul>
       </div>
       <button class="btn-primary" id="searchBtn" onclick="cariDanPutarLangsung()">▶ Cari & Putar</button>
     </div>
 
-    <!-- Kotak Hasil Pencarian (Muncul di Bawah) -->
+    <!-- Kotak Hasil Pencarian -->
     <div id="searchResults"></div>
   </div>
 
@@ -231,7 +231,7 @@
       <div id="standbyScreen">
         <span>🎤</span>
         <h3>Panggung Siap Dimainkan!</h3>
-        <p>Ketik judul lagu apa saja di atas lalu tekan <b>Cari & Putar</b>.</p>
+        <p>Ketik judul lagu apa saja di atas lalu klik <b>Cari & Putar</b>.</p>
       </div>
 
       <div id="playerContainer"></div>
@@ -247,7 +247,7 @@
           <button onclick="adjustOffset(0.5)" style="padding: 2px 6px;">+0.5s</button>
         </div>
       </div>
-      <div class="lyrics-hint">💡 Klik baris lirik yang sedang terdengar jika ingin menyamakan ketukan!</div>
+      <div class="lyrics-hint">💡 Klik baris lirik yang sedang terdengar jika ingin menyamakan tempo!</div>
       <div class="lyrics-scroll" id="lyricsContainer">
         <p style="color: #666; margin-top: 50px;">Lirik akan muncul otomatis setelah lagu berputar...</p>
       </div>
@@ -313,7 +313,7 @@
     <div class="modal-card">
       <h3 style="color: var(--neon-cyan); margin-bottom: 10px;">🔑 YouTube Data API Key</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; line-height: 1.4;">
-        Punya Google YouTube Data API v3 Key? Pasang di sini untuk pencarian resmi berkecepatan tinggi tanpa batas.
+        Punya Google YouTube Data API v3 Key? Pasang di sini untuk pencarian langsung kecepatan tinggi tanpa batas.
       </p>
       <input type="text" id="customApiKeyInput" placeholder="Tempel Google API Key di sini..." style="width: 100%; margin-bottom: 15px; padding: 10px; background: #0b0c10; color: #fff; border: 1px solid #45a29e; border-radius: 6px;">
       <div style="display: flex; gap: 10px; justify-content: center;">
@@ -354,7 +354,7 @@
       } catch (e) {}
     }
 
-    // === 2. PEMUTAR PANGGUNG KARAOKE (100% DALAM HALAMAN) ===
+    // === 2. PEMUTAR PANGGUNG KARAOKE (HASIL PENCARIAN LANGSUNG HILANG) ===
     let currentVideoId = '';
     let lyricOffset = 0;
     let syncedLyrics = [];
@@ -372,7 +372,15 @@
       document.getElementById('offsetVal').innerText = `Offset: 0.0s`;
       document.getElementById('standbyScreen').style.display = 'none';
 
-      // Langsung embed dan putar di video-box panggung
+      // 1. TUTUP & HILANGKAN HASIL PENCARIAN SEKETIKA SAAT LAGU BERPUTAR
+      const searchBox = document.getElementById('searchResults');
+      if (searchBox) {
+        searchBox.style.display = 'none';
+        searchBox.innerHTML = '';
+      }
+      document.getElementById('suggestList').style.display = 'none';
+
+      // 2. Putar di panggung utama
       const container = document.getElementById('playerContainer');
       container.innerHTML = `
         <iframe id="karaokeIframe"
@@ -389,7 +397,7 @@
       fetchLyrics(title || 'Karaoke Track');
     }
 
-    // === 3. AUTOCOMPLETE SUGGEST (RESMI GOOGLE JSONP - TIDAK DIBLOKIR) ===
+    // === 3. AUTOCOMPLETE SUGGEST (RESMI GOOGLE JSONP) ===
     function fetchGoogleSuggest(val) {
       const q = val.trim();
       const list = document.getElementById('suggestList');
@@ -431,7 +439,7 @@
       }
     });
 
-    // === 4. SISTEM PENCARIAN & LANGSUNG MAIN DI PANGGUNG ===
+    // === 4. PENCARIAN & PUTAR DI PANGGUNG ===
     const INVIDIOUS_SERVERS = [
       'https://invidious.nerdvpn.de',
       'https://invidious.tiekoetter.com',
@@ -449,11 +457,13 @@
       if (!input) return alert('Silakan ketik nama lagu atau artis!');
       document.getElementById('suggestList').style.display = 'none';
 
-      // 1. Jika pengguna menempel Link YouTube langsung
+      // Pastikan layar penuh aktif saat pengguna menekan tombol cari
+      masukFullscreen();
+
+      // Jika input adalah link YouTube langsung
       const directId = extractVideoID(input);
       if (directId) {
         putarLaguKaraoke(directId, 'Lagu Pilihan');
-        resultsContainer.style.display = 'none';
         return;
       }
 
@@ -461,12 +471,12 @@
       searchBtn.disabled = true;
       resultsContainer.style.display = 'grid';
       resultsContainer.innerHTML = `<p style="color: var(--neon-cyan); grid-column: 1/-1; text-align: center; padding: 18px;">
-        🔍 Mengambil instrumen karaoke untuk "<b>${escapeHtml(input)}</b>"...
+        🔍 Memuat instrumen karaoke untuk "<b>${escapeHtml(input)}</b>"...
       </p>`;
 
       let foundVideos = [];
 
-      // 2. Cek apakah ada Google API Key pengguna
+      // A. Cek Google API Key jika ada
       const apiKey = localStorage.getItem('user_yt_api_key');
       if (apiKey) {
         try {
@@ -482,7 +492,7 @@
         } catch(e) {}
       }
 
-      // 3. Cari langsung melalui Invidious Public Cluster (Fast Failover)
+      // B. Multi-Server Cluster Search
       if (foundVideos.length === 0) {
         const queryTerm = input.toLowerCase().includes('karaoke') ? input : `${input} karaoke`;
         for (const base of INVIDIOUS_SERVERS) {
@@ -508,7 +518,7 @@
         }
       }
 
-      // 4. Cadangan Proxy Bersih
+      // C. Cadangan Proxy
       if (foundVideos.length === 0) {
         try {
           const target = encodeURIComponent(`https://www.youtube.com/results?search_query=${encodeURIComponent(input + ' karaoke')}`);
@@ -537,35 +547,16 @@
       searchBtn.innerText = "▶ Cari & Putar";
       searchBtn.disabled = false;
 
-      // EKSEKUSI: JIKA KETEMU, LANGSUNG PUTAR HASIL PERTAMA DI PANGGUNG!
+      // HASIL KETEMU: PUTAR DI PANGGUNG DAN HILANGKAN HASIL PENCARIAN
       if (foundVideos.length > 0) {
-        // Otomatis putar trek nomor 1 di panggung
         const topTrack = foundVideos[0];
         putarLaguKaraoke(topTrack.id, topTrack.title);
-
-        // Tampilkan daftar opsi karaoke lainnya di bawah panggung
-        resultsContainer.innerHTML = `
-          <div style="grid-column: 1/-1; color: var(--neon-cyan); font-size: 0.85rem; margin-bottom: 5px;">
-            ✅ <b>Sedang Memutar:</b> "${escapeHtml(topTrack.title)}". Klik di bawah jika ingin mengganti versi:
-          </div>
-        ` + foundVideos.map(v => {
-          const safeTitleJs = v.title.replace(/'/g, "\\'");
-          return `
-            <div class="result-item" onclick="putarLaguKaraoke('${v.id}', '${safeTitleJs}')">
-              <img src="${v.thumb}" onerror="this.src='https://i.ytimg.com/vi/${v.id}/mqdefault.jpg'" alt="thumb">
-              <div class="result-item-info">
-                <strong>${escapeHtml(v.title)}</strong>
-                <span>▶ Putar Versi Ini</span>
-              </div>
-            </div>
-          `;
-        }).join('');
       } else {
         resultsContainer.innerHTML = `
           <div style="grid-column: 1/-1; background: #161c24; border: 1px solid #444; padding: 15px; border-radius: 8px; text-align: center;">
-            <p style="color: #ff9999; font-size: 0.9rem; margin-bottom: 8px;">Koneksi pencarian otomatis terhalang oleh jaringan internet.</p>
+            <p style="color: #ff9999; font-size: 0.9rem; margin-bottom: 8px;">Koneksi pencarian otomatis terhalang oleh jaringan.</p>
             <p style="font-size: 0.8rem; color: #ccc;">
-              Anda dapat menyalin link video YouTube apa saja lalu tempelkan langsung ke kolom pencarian di atas untuk diputar seketika di panggung.
+              Anda dapat menyalin link video YouTube apa saja lalu tempelkan ke kolom pencarian di atas untuk diputar seketika di panggung.
             </p>
           </div>
         `;
@@ -790,7 +781,7 @@
       trackAudio();
     }
 
-    // === 7. API KEY MODAL & FULLSCREEN ===
+    // === 7. API KEY & AUTO-FULLSCREEN SISTEM ===
     function openApiKeyModal() {
       document.getElementById('customApiKeyInput').value = localStorage.getItem('user_yt_api_key') || '';
       document.getElementById('apiKeyModal').style.display = 'flex';
@@ -808,10 +799,34 @@
       document.getElementById('apiKeyModal').style.display = 'none';
     }
 
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-      else if (document.exitFullscreen) document.exitFullscreen();
+    function masukFullscreen() {
+      if (!document.fullscreenElement) {
+        const el = document.documentElement;
+        const rfs = el.requestFullscreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+        if (rfs) {
+          rfs.call(el).catch(() => {});
+        }
+      }
     }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        masukFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // OTOMATIS LAYAR PENUH SAAT DIBUKA / KLIK PERTAMA KALI
+    window.addEventListener('DOMContentLoaded', () => {
+      masukFullscreen();
+    });
+
+    ['click', 'keydown', 'touchstart'].forEach(evt => {
+      document.addEventListener(evt, () => {
+        masukFullscreen();
+      }, { once: true });
+    });
 
     document.getElementById('searchInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') cariDanPutarLangsung();
