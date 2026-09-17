@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>Studio Karaoke Neon Pro - Auto Fullscreen & Clean Stage</title>
+  <title>Studio Karaoke Neon Pro - Smart Lyrics Edition</title>
   <style>
     :root {
       --bg: #0b0c10;
@@ -57,7 +57,6 @@
     }
     input[type="text"]:focus { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(102,252,241,0.5); }
     
-    /* Autocomplete Dropdown */
     #suggestList {
       display: none; position: absolute; top: 105%; left: 0; right: 0;
       background: #141b22; border: 1px solid var(--neon-cyan); border-radius: 8px;
@@ -71,7 +70,7 @@
     #suggestList li:hover { background: #1f2833; color: var(--neon-cyan); }
 
     button {
-      padding: 12px 22px; font-weight: bold; border: none; border-radius: 8px;
+      padding: 12px 24px; font-weight: bold; border: none; border-radius: 8px;
       cursor: pointer; transition: 0.2s; font-size: 0.95rem;
     }
     .btn-primary { background: var(--neon-cyan); color: #0b0c10; }
@@ -82,7 +81,11 @@
     /* Search Results Grid */
     #searchResults {
       display: none; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;
-      margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; max-height: 320px; overflow-y: auto;
+      margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; max-height: 350px; overflow-y: auto;
+    }
+    .search-title-bar {
+      grid-column: 1/-1; display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 4px; color: var(--neon-cyan); font-size: 0.9rem; font-weight: bold;
     }
     .result-item {
       background: #141b22; border-radius: 8px; padding: 10px; cursor: pointer;
@@ -135,8 +138,10 @@
       display: flex; flex-direction: column; height: 100%; min-height: 380px; max-height: 520px;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .lyrics-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 8px; }
+    .lyrics-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
     .lyrics-header h3 { color: var(--neon-pink); font-size: clamp(1rem, 2vw, 1.2rem); }
+    .lyrics-tools { display: flex; gap: 6px; align-items: center; font-size: 0.8rem; }
+    .lyrics-tools button { padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; }
     .lyrics-hint { font-size: 0.8rem; color: var(--neon-cyan); margin-bottom: 8px; text-align: center; }
     
     .lyrics-scroll {
@@ -144,14 +149,15 @@
       display: flex; flex-direction: column; gap: 14px; padding: 20px 0;
     }
     .lyrics-line {
-      font-size: clamp(1rem, 1.8vw, 1.2rem); color: #666; transition: all 0.3s; padding: 6px; border-radius: 6px;
-      cursor: pointer; user-select: none;
+      font-size: clamp(1rem, 1.8vw, 1.2rem); color: #777; transition: all 0.3s; padding: 6px 10px; border-radius: 6px;
+      cursor: pointer; user-select: none; line-height: 1.4;
     }
-    .lyrics-line:hover { color: #aaa; background: rgba(255,255,255,0.05); }
+    .lyrics-line:hover { color: #ccc; background: rgba(255,255,255,0.05); }
     .lyrics-line.active {
       color: var(--neon-cyan); font-size: clamp(1.2rem, 2.2vw, 1.45rem); font-weight: bold;
-      text-shadow: 0 0 12px rgba(102, 252, 241, 0.8);
-      background: rgba(102, 252, 241, 0.08);
+      text-shadow: 0 0 14px rgba(102, 252, 241, 0.9);
+      background: rgba(102, 252, 241, 0.12);
+      transform: scale(1.02);
     }
 
     /* Bottom Panel */
@@ -204,7 +210,7 @@
 
   <header>
     <h1>🎤 KARAOKE LIVE STUDIO PRO</h1>
-    <p>100% Langsung Main di Panggung • Bebas Cari Lagu Apa Saja</p>
+    <p>Lirik Sinkron Cerdas • Otomatis Hilangkan Pencarian Saat Bernyanyi</p>
     <div class="header-btns">
       <button class="header-btn" onclick="openApiKeyModal()">🔑 API Key</button>
       <button class="header-btn" onclick="toggleFullscreen()">🖥️ Layar Penuh</button>
@@ -215,41 +221,43 @@
   <div class="search-panel">
     <div class="search-form">
       <div class="input-wrapper">
-        <input type="text" id="searchInput" placeholder="Ketik nama lagu / artis (misal: naykilla, dewa 19, sheila on 7)..." autocomplete="off" oninput="fetchGoogleSuggest(this.value)">
+        <input type="text" id="searchInput" placeholder="Ketik nama lagu / penyanyi (contoh: naykilla, dewa 19, tiara andini)..." autocomplete="off" oninput="fetchGoogleSuggest(this.value)">
         <ul id="suggestList"></ul>
       </div>
-      <button class="btn-primary" id="searchBtn" onclick="cariDanPutarLangsung()">▶ Cari & Putar</button>
+      <button class="btn-primary" id="searchBtn" onclick="cariInstrumenKaraoke()">🔍 Cari Instrumen</button>
     </div>
 
     <!-- Kotak Hasil Pencarian -->
     <div id="searchResults"></div>
   </div>
 
-  <!-- Panggung Utama & Lirik -->
+  <!-- Panggung Utama & Lirik Samping -->
   <div class="stage-container">
     <div class="video-box">
       <div id="standbyScreen">
         <span>🎤</span>
         <h3>Panggung Siap Dimainkan!</h3>
-        <p>Ketik judul lagu apa saja di atas lalu klik <b>Cari & Putar</b>.</p>
+        <p>Ketik judul lagu di atas, klik <b>Cari Instrumen</b>, lalu pilih trek karaoke.</p>
       </div>
 
       <div id="playerContainer"></div>
       <div id="booOverlay">👎 BOOOOOOOOO! 👎</div>
     </div>
 
+    <!-- Box Lirik Samping -->
     <div class="lyrics-box">
       <div class="lyrics-header">
         <h3>📜 Lirik Sinkron Otomatis</h3>
-        <div style="font-size: 0.8rem; display: flex; gap: 5px; align-items: center;">
-          <button onclick="adjustOffset(-0.5)" style="padding: 2px 6px;">-0.5s</button>
-          <span id="offsetVal" style="color: var(--neon-cyan); font-weight: bold;">Offset: 0.0s</span>
-          <button onclick="adjustOffset(0.5)" style="padding: 2px 6px;">+0.5s</button>
+        <div class="lyrics-tools">
+          <button style="background:#2b323c; color:#fff;" onclick="bukaModalManualLirik()" title="Tempel lirik sendiri">📝 Input Lirik</button>
+          <button style="background:var(--neon-cyan); color:#000;" onclick="adjustOffset(-0.5)">-0.5s</button>
+          <span id="offsetVal" style="color: var(--neon-cyan); font-weight: bold;">0.0s</span>
+          <button style="background:var(--neon-cyan); color:#000;" onclick="adjustOffset(0.5)">+0.5s</button>
         </div>
       </div>
-      <div class="lyrics-hint">💡 Klik baris lirik yang sedang terdengar jika ingin menyamakan tempo!</div>
+      <div class="lyrics-hint">💡 Klik baris lirik jika ingin mencocokkan tempo lagu secara instan!</div>
       <div class="lyrics-scroll" id="lyricsContainer">
-        <p style="color: #666; margin-top: 50px;">Lirik akan muncul otomatis setelah lagu berputar...</p>
+        <p style="color: #666; margin-top: 50px;">Lirik akan muncul otomatis di samping saat lagu diputar...</p>
       </div>
     </div>
   </div>
@@ -275,7 +283,7 @@
       </div>
     </div>
 
-    <!-- Mic & Skor -->
+    <!-- Mic & Kontrol -->
     <div class="card">
       <h4>🎙️ Mic & Kontrol Nada</h4>
       <div class="mic-controls">
@@ -308,12 +316,27 @@
     </div>
   </div>
 
+  <!-- Modal Input Lirik Sendiri (Opsional untuk Lagu Langka) -->
+  <div class="modal-backdrop" id="manualLyricsModal">
+    <div class="modal-card" style="max-width: 520px; text-align: left;">
+      <h3 style="color: var(--neon-cyan); margin-bottom: 8px;">📝 Tempel / Masukkan Lirik Lagu</h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
+        Jika lagu langka tidak ada liriknya di internet, Anda bisa menempel teks lirik di sini (teks biasa atau format LRC):
+      </p>
+      <textarea id="manualLyricsInput" rows="10" placeholder="Tempel baris lirik di sini..." style="width: 100%; background: #0b0c10; border: 1px solid #45a29e; border-radius: 8px; color: #fff; padding: 10px; font-size: 0.9rem; outline: none;"></textarea>
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+        <button class="btn-primary" onclick="terapkanLirikManual()">Terapkan Lirik</button>
+        <button style="background: #444; color: #fff;" onclick="document.getElementById('manualLyricsModal').style.display='none'">Batal</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal API Key -->
   <div class="modal-backdrop" id="apiKeyModal">
     <div class="modal-card">
       <h3 style="color: var(--neon-cyan); margin-bottom: 10px;">🔑 YouTube Data API Key</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; line-height: 1.4;">
-        Punya Google YouTube Data API v3 Key? Pasang di sini untuk pencarian langsung kecepatan tinggi tanpa batas.
+        Punya Google YouTube Data API v3 Key? Pasang di sini untuk pencarian berkecepatan tinggi resmi tanpa batas.
       </p>
       <input type="text" id="customApiKeyInput" placeholder="Tempel Google API Key di sini..." style="width: 100%; margin-bottom: 15px; padding: 10px; background: #0b0c10; color: #fff; border: 1px solid #45a29e; border-radius: 6px;">
       <div style="display: flex; gap: 10px; justify-content: center;">
@@ -354,12 +377,13 @@
       } catch (e) {}
     }
 
-    // === 2. PEMUTAR PANGGUNG KARAOKE (HASIL PENCARIAN LANGSUNG HILANG) ===
+    // === 2. PLAYER SISTEM & HILANGKAN HASIL SEARCH SAAT PLAY ===
     let currentVideoId = '';
     let lyricOffset = 0;
     let syncedLyrics = [];
     let lyricTimer = null;
     let songStartTime = 0;
+    let exactVideoCurrentTime = -1;
     let isScoredThisSong = false;
 
     function putarLaguKaraoke(videoId, title) {
@@ -369,10 +393,11 @@
       lyricOffset = 0;
       totalSingingSamples = 0;
       onPitchSamples = 0;
-      document.getElementById('offsetVal').innerText = `Offset: 0.0s`;
+      exactVideoCurrentTime = -1;
+      document.getElementById('offsetVal').innerText = `0.0s`;
       document.getElementById('standbyScreen').style.display = 'none';
 
-      // 1. TUTUP & HILANGKAN HASIL PENCARIAN SEKETIKA SAAT LAGU BERPUTAR
+      // 1. KETIKA LAGU DIMULAI: HILANGKAN HASIL PENCARIAN
       const searchBox = document.getElementById('searchResults');
       if (searchBox) {
         searchBox.style.display = 'none';
@@ -380,7 +405,7 @@
       }
       document.getElementById('suggestList').style.display = 'none';
 
-      // 2. Putar di panggung utama
+      // 2. Putar Video di Panggung
       const container = document.getElementById('playerContainer');
       container.innerHTML = `
         <iframe id="karaokeIframe"
@@ -392,12 +417,23 @@
 
       songStartTime = Date.now();
       if (lyricTimer) clearInterval(lyricTimer);
-      lyricTimer = setInterval(updateLyricsByLocalTimer, 250);
+      lyricTimer = setInterval(updateLyricsSync, 200);
 
-      fetchLyrics(title || 'Karaoke Track');
+      // Ambil lirik cerdas multi-tahap
+      ambilLirikMultiTahap(title);
     }
 
-    // === 3. AUTOCOMPLETE SUGGEST (RESMI GOOGLE JSONP) ===
+    // Mendengarkan respon waktu dari YouTube iframe
+    window.addEventListener('message', (e) => {
+      try {
+        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        if (data && data.info && typeof data.info.currentTime === 'number') {
+          exactVideoCurrentTime = data.info.currentTime;
+        }
+      } catch (err) {}
+    });
+
+    // === 3. AUTOCOMPLETE PENCARIAN (GOOGLE JSONP) ===
     function fetchGoogleSuggest(val) {
       const q = val.trim();
       const list = document.getElementById('suggestList');
@@ -430,7 +466,7 @@
     function pilihSaran(keyword) {
       document.getElementById('searchInput').value = keyword;
       document.getElementById('suggestList').style.display = 'none';
-      cariDanPutarLangsung();
+      cariInstrumenKaraoke();
     }
 
     document.addEventListener('click', (e) => {
@@ -439,7 +475,7 @@
       }
     });
 
-    // === 4. PENCARIAN & PUTAR DI PANGGUNG ===
+    // === 4. PENCARIAN INSTRUMEN (TETAP ADA UNTUK DIPILIH) ===
     const INVIDIOUS_SERVERS = [
       'https://invidious.nerdvpn.de',
       'https://invidious.tiekoetter.com',
@@ -449,7 +485,7 @@
       'https://invidious.flokinet.to'
     ];
 
-    async function cariDanPutarLangsung() {
+    async function cariInstrumenKaraoke() {
       const input = document.getElementById('searchInput').value.trim();
       const searchBtn = document.getElementById('searchBtn');
       const resultsContainer = document.getElementById('searchResults');
@@ -457,30 +493,29 @@
       if (!input) return alert('Silakan ketik nama lagu atau artis!');
       document.getElementById('suggestList').style.display = 'none';
 
-      // Pastikan layar penuh aktif saat pengguna menekan tombol cari
       masukFullscreen();
 
       // Jika input adalah link YouTube langsung
       const directId = extractVideoID(input);
       if (directId) {
-        putarLaguKaraoke(directId, 'Lagu Pilihan');
+        putarLaguKaraoke(directId, input);
         return;
       }
 
-      searchBtn.innerText = "⏳ Memuat...";
+      searchBtn.innerText = "⏳ Mencari...";
       searchBtn.disabled = true;
       resultsContainer.style.display = 'grid';
       resultsContainer.innerHTML = `<p style="color: var(--neon-cyan); grid-column: 1/-1; text-align: center; padding: 18px;">
-        🔍 Memuat instrumen karaoke untuk "<b>${escapeHtml(input)}</b>"...
+        🔍 Mengumpulkan pilihan versi karaoke untuk "<b>${escapeHtml(input)}</b>"...
       </p>`;
 
       let foundVideos = [];
 
-      // A. Cek Google API Key jika ada
+      // A. Gunakan Google API Key jika ada
       const apiKey = localStorage.getItem('user_yt_api_key');
       if (apiKey) {
         try {
-          const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=6&q=${encodeURIComponent(input + ' karaoke')}&type=video&key=${apiKey}`);
+          const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=8&q=${encodeURIComponent(input + ' karaoke')}&type=video&key=${apiKey}`);
           const data = await res.json();
           if (data.items && data.items.length > 0) {
             foundVideos = data.items.map(it => ({
@@ -528,7 +563,7 @@
             const vidRegex = /"videoRenderer":\{"videoId":"([a-zA-Z0-9_-]{11})".*?"title":\{"runs":\[\{"text":"([^"]+)"/g;
             let match;
             const seen = new Set();
-            while ((match = vidRegex.exec(html)) !== null && foundVideos.length < 6) {
+            while ((match = vidRegex.exec(html)) !== null && foundVideos.length < 8) {
               const id = match[1];
               const title = match[2];
               if (!seen.has(id)) {
@@ -544,64 +579,123 @@
         } catch(e) {}
       }
 
-      searchBtn.innerText = "▶ Cari & Putar";
+      searchBtn.innerText = "🔍 Cari Instrumen";
       searchBtn.disabled = false;
 
-      // HASIL KETEMU: PUTAR DI PANGGUNG DAN HILANGKAN HASIL PENCARIAN
+      // HASIL TETAP MUNCUL UNTUK DIPILIH
       if (foundVideos.length > 0) {
-        const topTrack = foundVideos[0];
-        putarLaguKaraoke(topTrack.id, topTrack.title);
+        resultsContainer.innerHTML = `
+          <div class="search-title-bar">
+            <span>👇 Pilih versi instrumen yang Anda suka (klik untuk langsung putar):</span>
+            <button onclick="document.getElementById('searchResults').style.display='none'" style="background:transparent; color:#ff9999; padding:2px 8px; font-size:0.75rem; border:1px solid #ff3333; border-radius:4px;">✖ Tutup</button>
+          </div>
+        ` + foundVideos.map(v => {
+          const safeTitleJs = v.title.replace(/'/g, "\\'");
+          return `
+            <div class="result-item" onclick="putarLaguKaraoke('${v.id}', '${safeTitleJs}')">
+              <img src="${v.thumb}" onerror="this.src='https://i.ytimg.com/vi/${v.id}/mqdefault.jpg'" alt="thumb">
+              <div class="result-item-info">
+                <strong>${escapeHtml(v.title)}</strong>
+                <span>▶ Putar Versi Ini</span>
+              </div>
+            </div>
+          `;
+        }).join('');
       } else {
         resultsContainer.innerHTML = `
           <div style="grid-column: 1/-1; background: #161c24; border: 1px solid #444; padding: 15px; border-radius: 8px; text-align: center;">
-            <p style="color: #ff9999; font-size: 0.9rem; margin-bottom: 8px;">Koneksi pencarian otomatis terhalang oleh jaringan.</p>
+            <p style="color: #ff9999; font-size: 0.9rem; margin-bottom: 8px;">Tidak menemukan instrumen untuk "${escapeHtml(input)}".</p>
             <p style="font-size: 0.8rem; color: #ccc;">
-              Anda dapat menyalin link video YouTube apa saja lalu tempelkan ke kolom pencarian di atas untuk diputar seketika di panggung.
+              Coba tambahkan nama penyanyi asli, atau tempel link YouTube videonya langsung ke kolom di atas.
             </p>
           </div>
         `;
       }
     }
 
-    function extractVideoID(input) {
-      if (!input) return null;
-      const match = input.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-      return match ? match[1] : (input.length === 11 && !input.includes(' ') && !input.includes('/') ? input : null);
-    }
-
-    function escapeHtml(text) {
-      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-    }
-
-    // === 5. LIRIK SINKRON (LRCLIB) ===
-    async function fetchLyrics(songTitle) {
+    // === 5. MESIN LIRIK SINKRON MULTI-TAHAP (PASTI MUNCUL) ===
+    async function ambilLirikMultiTahap(videoTitle) {
       const container = document.getElementById('lyricsContainer');
-      container.innerHTML = '<p style="color: var(--neon-cyan)">Mengambil lirik...</p>';
+      container.innerHTML = '<p style="color: var(--neon-cyan)">⏳ Mengambil lirik sinkron...</p>';
       syncedLyrics = [];
 
-      const cleanTitle = songTitle
-        .replace(/karaoke|instrumental|no vocal|minus one|tanpa vokal|lirik|lyrics|official|audio|video|hd|hq/gi, '')
-        .replace(/[\(\)\[\]\-]/g, ' ')
+      const userTyped = document.getElementById('searchInput').value.trim()
+        .replace(/karaoke|instrumental|minus one|tanpa vokal/gi, '').trim();
+
+      // Bersihkan teks teknis dari judul YouTube
+      const cleanVideoTitle = videoTitle
+        .replace(/\(.*?\)|\[.*?\]/g, ' ')
+        .replace(/karaoke|instrumental|minus\s*one|tanpa\s*vokal|no\s*vocal|official|music\s*video|lirik|lyrics|audio|video|hd|hq|clean|cover|nada\s*cowok|nada\s*cewek|female\s*key|male\s*key/gi, ' ')
+        .replace(/[^a-zA-Z0-9\s]/g, ' ')
+        .replace(/\s+/g, ' ')
         .trim();
 
-      try {
-        const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(cleanTitle)}`);
-        const data = await res.json();
-        const match = data.find(item => item.syncedLyrics) || data[0];
+      // Daftar kata kunci yang akan dicari secara berurutan
+      const searchCandidates = [
+        cleanVideoTitle,
+        userTyped,
+        cleanVideoTitle.split(' ').slice(0, 4).join(' ') // 4 kata pertama (biasanya Artis + Judul)
+      ].filter(q => q && q.length > 2);
 
-        if (match && match.syncedLyrics) {
-          parseLRC(match.syncedLyrics);
-          renderLyrics();
-        } else if (match && match.plainLyrics) {
-          container.innerHTML = match.plainLyrics.split('\n').map(l => `<div class="lyrics-line">${l}</div>`).join('');
-        } else {
-          container.innerHTML = '<p style="color:#ff007f;">Lirik otomatis tidak ditemukan. Bernyanyilah mengikuti musik panggung!</p>';
-        }
-      } catch (err) {
-        container.innerHTML = '<p style="color:#ff007f;">Gagal memuat lirik otomatis.</p>';
+      let lyricFound = false;
+
+      // TAHAP 1: Cari di LRCLIB (Database Lirik Sinkron Terbesar)
+      for (const query of searchCandidates) {
+        try {
+          const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(query)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              const bestSynced = data.find(it => it.syncedLyrics);
+              if (bestSynced && bestSynced.syncedLyrics) {
+                parseLRC(bestSynced.syncedLyrics);
+                renderLyrics();
+                lyricFound = true;
+                break;
+              } else if (data[0].plainLyrics) {
+                konversiPlainLyricsKeSync(data[0].plainLyrics);
+                renderLyrics();
+                lyricFound = true;
+                break;
+              }
+            }
+          }
+        } catch (e) {}
+      }
+
+      // TAHAP 2: Jika LRCLIB kosong, coba Lyrics.ovh (Database Lirik Sekunder)
+      if (!lyricFound && userTyped.includes(' ')) {
+        const parts = userTyped.split(' ');
+        const artist = parts[0];
+        const title = parts.slice(1).join(' ');
+        try {
+          const res = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`);
+          if (res.ok) {
+            const d = await res.json();
+            if (d.lyrics) {
+              konversiPlainLyricsKeSync(d.lyrics);
+              renderLyrics();
+              lyricFound = true;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // TAHAP 3: Jika Masih Kosong
+      if (!lyricFound) {
+        container.innerHTML = `
+          <div style="padding: 20px 10px; color: #aaa;">
+            <p style="color: var(--neon-pink); font-weight: bold; margin-bottom: 8px;">Lirik cloud belum tersedia untuk lagu ini.</p>
+            <p style="font-size: 0.85rem; margin-bottom: 15px;">Anda tetap bisa bernyanyi mengikuti lirik di video, atau tempel lirik sendiri:</p>
+            <button class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="bukaModalManualLirik()">
+              📝 Tempel Lirik Sekarang
+            </button>
+          </div>
+        `;
       }
     }
 
+    // Parsing file format .LRC (Standar Karaoke Lirik Dunia)
     function parseLRC(lrcText) {
       syncedLyrics = [];
       const lines = lrcText.split('\n');
@@ -617,23 +711,50 @@
       }
     }
 
+    // Mengubah lirik teks polos menjadi lirik yang bisa bergulir otomatis
+    function konversiPlainLyricsKeSync(plainText) {
+      syncedLyrics = [];
+      const lines = plainText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let currentTime = 12.0; // Intro musik rata-rata ~12 detik
+      const timePerLine = 4.2; // Jeda rata-rata antar baris ~4 detik
+
+      for (let text of lines) {
+        syncedLyrics.push({ time: currentTime, text: text });
+        currentTime += timePerLine;
+      }
+    }
+
     function renderLyrics() {
       const container = document.getElementById('lyricsContainer');
       container.innerHTML = syncedLyrics.map((item, idx) => 
-        `<div class="lyrics-line" id="lyric-${idx}" onclick="kalibrasiLirik(${idx})">${item.text}</div>`
+        `<div class="lyrics-line" id="lyric-${idx}" onclick="kalibrasiLirik(${idx})">${escapeHtml(item.text)}</div>`
       ).join('');
     }
 
     function kalibrasiLirik(index) {
       const targetTime = syncedLyrics[index].time;
-      const elapsedTime = (Date.now() - songStartTime) / 1000;
-      lyricOffset = elapsedTime - targetTime;
-      document.getElementById('offsetVal').innerText = `Offset: ${lyricOffset > 0 ? '+' : ''}${lyricOffset.toFixed(1)}s`;
+      const currentPlayTime = getCurrentPlaybackSeconds();
+      lyricOffset = currentPlayTime - targetTime;
+      document.getElementById('offsetVal').innerText = `${lyricOffset > 0 ? '+' : ''}${lyricOffset.toFixed(1)}s`;
+      updateLyricsSync();
     }
 
-    function updateLyricsByLocalTimer() {
+    function getCurrentPlaybackSeconds() {
+      if (exactVideoCurrentTime >= 0) return exactVideoCurrentTime;
+      return (Date.now() - songStartTime) / 1000;
+    }
+
+    function updateLyricsSync() {
       if (syncedLyrics.length === 0) return;
-      const currentTime = ((Date.now() - songStartTime) / 1000) - lyricOffset;
+
+      // Minta waktu presisi ke iframe video
+      const iframe = document.getElementById('karaokeIframe');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage('{"event":"command","func":"getCurrentTime","args":""}', '*');
+        iframe.contentWindow.postMessage('{"event":"listening"}', '*');
+      }
+
+      const currentTime = getCurrentPlaybackSeconds() - lyricOffset;
       let activeIndex = -1;
 
       for (let i = 0; i < syncedLyrics.length; i++) {
@@ -655,7 +776,25 @@
 
     function adjustOffset(delta) {
       lyricOffset += delta;
-      document.getElementById('offsetVal').innerText = `Offset: ${lyricOffset.toFixed(1)}s`;
+      document.getElementById('offsetVal').innerText = `${lyricOffset > 0 ? '+' : ''}${lyricOffset.toFixed(1)}s`;
+    }
+
+    // Modal Input Lirik Manual
+    function bukaModalManualLirik() {
+      document.getElementById('manualLyricsModal').style.display = 'flex';
+    }
+
+    function terapkanLirikManual() {
+      const text = document.getElementById('manualLyricsInput').value.trim();
+      if (!text) return alert('Silakan tempelkan teks lirik terlebih dahulu!');
+
+      if (text.includes('[00:') || text.includes('[01:')) {
+        parseLRC(text);
+      } else {
+        konversiPlainLyricsKeSync(text);
+      }
+      renderLyrics();
+      document.getElementById('manualLyricsModal').style.display = 'none';
     }
 
     // === 6. SKOR KARAOKE & MIC ===
@@ -684,7 +823,7 @@
         setTimeout(() => playRealSound('victory'), 800);
       } else if (finalScore >= 75) {
         grade = "👏 GRADE B (BAGUS)";
-        comment = "Penampilan yang stabil dan merdu! Pertahankan permainannya!";
+        comment = "Penampilan yang stabil dan merdu! Pertahankan performanya!";
         playRealSound('applause');
       } else {
         grade = "👎 GRADE D (FALS TOTAL)";
@@ -810,26 +949,28 @@
     }
 
     function toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        masukFullscreen();
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-      }
+      if (!document.fullscreenElement) masukFullscreen();
+      else if (document.exitFullscreen) document.exitFullscreen();
     }
 
-    // OTOMATIS LAYAR PENUH SAAT DIBUKA / KLIK PERTAMA KALI
-    window.addEventListener('DOMContentLoaded', () => {
-      masukFullscreen();
-    });
+    function extractVideoID(input) {
+      if (!input) return null;
+      const match = input.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      return match ? match[1] : (input.length === 11 && !input.includes(' ') && !input.includes('/') ? input : null);
+    }
 
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // Auto Fullscreen pada klik pertama / pembukaan
+    window.addEventListener('DOMContentLoaded', () => masukFullscreen());
     ['click', 'keydown', 'touchstart'].forEach(evt => {
-      document.addEventListener(evt, () => {
-        masukFullscreen();
-      }, { once: true });
+      document.addEventListener(evt, () => masukFullscreen(), { once: true });
     });
 
     document.getElementById('searchInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') cariDanPutarLangsung();
+      if (e.key === 'Enter') cariInstrumenKaraoke();
     });
   </script>
 </body>
