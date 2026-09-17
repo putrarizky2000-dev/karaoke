@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Studio Karaoke Neon Pro - Ultimate Party Edition</title>
+  <title>Studio Karaoke Neon Pro - Auto Score & Responsive</title>
   <style>
     :root {
       --bg: #0b0c10;
@@ -18,19 +18,37 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-x: hidden; }
-    
-    header { text-align: center; margin-bottom: 20px; }
-    header h1 { font-size: 2.2rem; color: var(--neon-cyan); text-shadow: 0 0 14px rgba(102, 252, 241, 0.7); }
-    header p { color: var(--text-muted); font-size: 0.95rem; }
-
-    .search-panel {
-      width: 100%; max-width: 1100px; margin-bottom: 15px;
-      background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    body {
+      background: var(--bg); color: var(--text); padding: clamp(10px, 2vw, 25px);
+      display: flex; flex-direction: column; align-items: center; min-height: 100vh;
     }
-    .search-form { display: flex; gap: 10px; }
+    
+    /* Header Responsive */
+    header {
+      text-align: center; margin-bottom: 15px; width: 100%; max-width: 1200px;
+      display: flex; flex-direction: column; align-items: center; position: relative;
+    }
+    header h1 {
+      font-size: clamp(1.6rem, 3.5vw, 2.5rem); color: var(--neon-cyan);
+      text-shadow: 0 0 14px rgba(102, 252, 241, 0.7);
+    }
+    header p { color: var(--text-muted); font-size: clamp(0.85rem, 1.8vw, 1rem); }
+    
+    .fullscreen-btn {
+      position: absolute; right: 0; top: 0; background: #121820; border: 1px solid #45a29e;
+      color: var(--neon-cyan); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: bold;
+    }
+    .fullscreen-btn:hover { background: var(--neon-cyan); color: #000; }
+
+    /* Search & Quick Bar */
+    .search-panel {
+      width: 100%; max-width: 1200px; margin-bottom: 15px;
+      background: var(--card-bg); padding: clamp(10px, 2vw, 18px); border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .search-form { display: flex; gap: 10px; flex-wrap: wrap; }
     input {
-      flex: 1; padding: 12px 15px; background: #0b0c10; border: 1px solid #45a29e;
+      flex: 1 1 280px; padding: 12px 15px; background: #0b0c10; border: 1px solid #45a29e;
       border-radius: 8px; color: #fff; font-size: 1rem; outline: none;
     }
     input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 8px rgba(102,252,241,0.4); }
@@ -38,16 +56,17 @@
       padding: 12px 20px; font-weight: bold; border: none; border-radius: 8px;
       cursor: pointer; transition: 0.2s; font-size: 0.95rem;
     }
-    .btn-primary { background: var(--neon-cyan); color: #0b0c10; }
+    .btn-primary { background: var(--neon-cyan); color: #0b0c10; flex: 0 0 auto; }
     .btn-primary:hover { background: #45a29e; }
     .btn-score { background: var(--neon-gold); color: #0b0c10; }
     .btn-score:hover { background: #e6c200; }
 
-    .quick-tags { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
-    .quick-tags span { font-size: 0.8rem; color: var(--text-muted); }
+    /* Quick Tags */
+    .quick-tags { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+    .quick-tags span { font-size: 0.85rem; color: var(--neon-gold); font-weight: bold; }
     .tag-btn {
       background: #121820; border: 1px solid #45a29e; color: var(--text-muted);
-      padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; cursor: pointer;
+      padding: 6px 12px; border-radius: 15px; font-size: 0.8rem; cursor: pointer;
     }
     .tag-btn:hover { background: var(--neon-pink); color: #fff; border-color: var(--neon-pink); }
 
@@ -65,95 +84,102 @@
     .result-item-info strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #fff; }
     .result-item-info span { color: var(--text-muted); font-size: 0.75rem; }
 
+    /* Stage Container (Responsive Grid / Zoom Friendly) */
     .stage-container {
-      display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px;
-      width: 100%; max-width: 1100px; position: relative;
+      display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px;
+      width: 100%; max-width: 1200px; position: relative;
     }
     .video-box {
       background: #000; border-radius: 12px; overflow: hidden;
-      aspect-ratio: 16/9; position: relative; border: 1px solid #333;
+      aspect-ratio: 16/9; position: relative; border: 1px solid #333; width: 100%;
     }
-    #mainPlayer { width: 100%; height: 100%; border: none; }
+    #playerContainer { width: 100%; height: 100%; }
 
-    /* Overlay Animasi Ejekan BOOO */
     #booOverlay {
-      display: none; position: absolute; top: 30%; left: 35%; transform: translate(-50%, -50%);
-      background: rgba(255, 0, 0, 0.85); color: #fff; padding: 15px 30px; border-radius: 50px;
-      font-size: 2.2rem; font-weight: 900; z-index: 100; box-shadow: 0 0 30px rgba(255,0,0,0.8);
-      animation: shake 0.5s infinite; pointer-events: none;
+      display: none; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+      background: rgba(255, 0, 0, 0.9); color: #fff; padding: 15px 35px; border-radius: 50px;
+      font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 900; z-index: 100;
+      box-shadow: 0 0 35px rgba(255,0,0,0.9); animation: shake 0.5s infinite; pointer-events: none;
     }
     @keyframes shake {
-      0% { transform: translate(0, 0) rotate(0deg); }
-      25% { transform: translate(-5px, 5px) rotate(-5deg); }
-      50% { transform: translate(5px, -5px) rotate(5deg); }
-      75% { transform: translate(-5px, -5px) rotate(-3deg); }
-      100% { transform: translate(0, 0) rotate(0deg); }
+      0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+      25% { transform: translate(-52%, -48%) rotate(-5deg); }
+      50% { transform: translate(-48%, -52%) rotate(5deg); }
+      75% { transform: translate(-52%, -52%) rotate(-3deg); }
     }
 
+    /* Lyrics Box */
     .lyrics-box {
-      background: var(--card-bg); border-radius: 12px; padding: 20px;
-      display: flex; flex-direction: column; height: 420px;
+      background: var(--card-bg); border-radius: 12px; padding: clamp(12px, 2vw, 20px);
+      display: flex; flex-direction: column; height: 100%; min-height: 380px; max-height: 520px;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .lyrics-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
-    .lyrics-header h3 { color: var(--neon-pink); }
+    .lyrics-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; }
+    .lyrics-header h3 { color: var(--neon-pink); font-size: clamp(1rem, 2vw, 1.2rem); }
+    .lyrics-hint { font-size: 0.8rem; color: var(--neon-cyan); margin-bottom: 8px; text-align: center; }
+    
     .lyrics-scroll {
       flex: 1; overflow-y: auto; scroll-behavior: smooth; text-align: center;
-      display: flex; flex-direction: column; gap: 12px; padding: 20px 0;
+      display: flex; flex-direction: column; gap: 14px; padding: 20px 0;
     }
-    .lyrics-line { font-size: 1.1rem; color: #777; transition: all 0.3s; padding: 6px; border-radius: 6px; }
+    .lyrics-line {
+      font-size: clamp(1rem, 1.8vw, 1.2rem); color: #666; transition: all 0.3s; padding: 6px; border-radius: 6px;
+      cursor: pointer; user-select: none;
+    }
+    .lyrics-line:hover { color: #aaa; background: rgba(255,255,255,0.05); }
     .lyrics-line.active {
-      color: var(--neon-cyan); font-size: 1.35rem; font-weight: bold;
+      color: var(--neon-cyan); font-size: clamp(1.2rem, 2.2vw, 1.45rem); font-weight: bold;
       text-shadow: 0 0 12px rgba(102, 252, 241, 0.8);
       background: rgba(102, 252, 241, 0.08);
     }
 
+    /* Bottom Panel */
     .bottom-panel {
-      display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 20px;
-      width: 100%; max-width: 1100px; margin-top: 20px;
+      display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px;
+      width: 100%; max-width: 1200px; margin-top: 20px;
     }
-    .card { background: var(--card-bg); padding: 18px; border-radius: 12px; border: 1px solid #333; }
-    .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .card { background: var(--card-bg); padding: clamp(12px, 2vw, 18px); border-radius: 12px; border: 1px solid #333; }
+    .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 5px; }
     .card h4 { color: var(--text-muted); font-size: 0.95rem; text-transform: uppercase; }
 
-    /* Soundboard Grid (6 Tombol Interaktif) */
-    .soundboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .soundboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
     .btn-sound {
-      background: #2b323c; color: #fff; padding: 14px 5px; font-size: 0.85rem;
+      background: #2b323c; color: #fff; padding: 12px 5px; font-size: 0.85rem;
       border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; font-weight: bold;
     }
-    .btn-sound:hover { background: var(--neon-pink); transform: scale(1.05); }
-    .btn-sound span { font-size: 1.6rem; }
-    
+    .btn-sound:hover { background: var(--neon-pink); transform: scale(1.03); }
+    .btn-sound span { font-size: 1.5rem; }
     .btn-boo { background: #4a151b; border: 1px solid var(--neon-red); color: #ff9999; }
     .btn-boo:hover { background: var(--neon-red); color: #fff; }
-
-    .btn-mega {
-      grid-column: 1 / -1; background: linear-gradient(135deg, #ff007f, #ffd700);
-      color: #000; font-size: 1rem; padding: 12px;
-    }
 
     .mic-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .key-control { display: flex; align-items: center; gap: 8px; background: #121820; padding: 6px 12px; border-radius: 8px; border: 1px solid #45a29e; }
     .key-btn { padding: 4px 10px; font-size: 1rem; background: var(--neon-cyan); color: #000; border-radius: 4px; }
     .slider-group { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: var(--text-muted); }
 
+    /* Pop-up Skor Otomatis */
     .score-modal {
-      display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
-      justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(5px);
+      display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.88);
+      justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(8px); padding: 15px;
     }
     .score-card {
       background: linear-gradient(135deg, #1f2833, #0b0c10); border: 2px solid var(--neon-gold);
-      border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%;
-      box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); animation: popUp 0.4s ease;
+      border-radius: 20px; padding: clamp(20px, 4vw, 40px); text-align: center; max-width: 480px; width: 100%;
+      box-shadow: 0 0 45px rgba(255, 215, 0, 0.6); animation: popUp 0.4s ease;
     }
-    @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .score-number { font-size: 5.5rem; font-weight: 900; color: var(--neon-gold); text-shadow: 0 0 25px rgba(255,215,0,0.8); margin: 10px 0; }
-    .score-grade { font-size: 1.8rem; font-weight: bold; color: var(--neon-cyan); }
-    .score-comment { margin: 15px 0; color: var(--text-muted); font-size: 1rem; }
+    @keyframes popUp { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .score-number {
+      font-size: clamp(4rem, 8vw, 5.5rem); font-weight: 900; color: var(--neon-gold);
+      text-shadow: 0 0 25px rgba(255,215,0,0.8); margin: 5px 0;
+    }
+    .score-grade { font-size: clamp(1.3rem, 2.5vw, 1.8rem); font-weight: bold; color: var(--neon-cyan); }
+    .score-comment { margin: 15px 0; color: var(--text-muted); font-size: clamp(0.95rem, 1.8vw, 1.1rem); line-height: 1.4; }
 
-    @media(max-width: 900px) {
+    /* RESPONSIVE UNTUK ZOOM BESAR & HP */
+    @media(max-width: 950px) {
       .stage-container, .bottom-panel { grid-template-columns: 1fr; }
+      .fullscreen-btn { position: static; margin-top: 10px; }
+      .lyrics-box { height: 380px; }
     }
   </style>
 </head>
@@ -161,23 +187,25 @@
 
   <header>
     <h1>🎤 KARAOKE LIVE STUDIO PRO</h1>
-    <p>Player Stabil 100% Terbuka + Sorakan Stadion Asli & Fitur Boo!</p>
+    <p>Penilaian Otomatis Selesai Nyanyi + Desain Bebas Zoom Anti-Pecah!</p>
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">🖥️ Layar Penuh</button>
   </header>
 
   <!-- Panel Pencarian -->
   <div class="search-panel">
     <div class="search-form">
-      <input type="text" id="searchInput" placeholder="Ketik judul lagu atau tempel link YouTube (cth: Sheila on 7 Dan, Dewa 19...)">
-      <button class="btn-primary" id="searchBtn" onclick="tanganiInput()">🔍 Cari / Buka</button>
+      <input type="text" id="searchInput" placeholder="Ketik Judul Lagu (cth: Sheila On 7 Dan, Dewa 19 Kangen, Adele...)">
+      <button class="btn-primary" id="searchBtn" onclick="mulaiPencarian()">🔍 Cari Lagu</button>
     </div>
 
-    <!-- Pilihan Cepat (Pasti Terbuka) -->
+    <!-- Pilihan Cepat -->
     <div class="quick-tags">
-      <span>Pilihan Pasti Terbuka:</span>
-      <button class="tag-btn" onclick="pilihLaguLangsung('k4V3Mo61fJM', 'Adele Someone Like You')">Adele - Someone Like You</button>
-      <button class="tag-btn" onclick="pilihLaguLangsung('j4tFqgJ13mE', 'Sheila on 7 Dan')">Sheila On 7 - Dan</button>
-      <button class="tag-btn" onclick="pilihLaguLangsung('bI1t38pZt5A', 'Dewa 19 Kangen')">Dewa 19 - Kangen</button>
-      <button class="tag-btn" onclick="pilihLaguLangsung('p_t8eWJm2f4', 'Peterpan Menghapus Jejakmu')">Peterpan - Menghapus Jejakmu</button>
+      <span>⭐ Pilihan Terverifikasi:</span>
+      <button class="tag-btn" onclick="pilihLaguTerverifikasi('j4tFqgJ13mE', 'Sheila On 7', 'Dan')">Sheila On 7 - Dan</button>
+      <button class="tag-btn" onclick="pilihLaguTerverifikasi('bI1t38pZt5A', 'Dewa 19', 'Kangen')">Dewa 19 - Kangen</button>
+      <button class="tag-btn" onclick="pilihLaguTerverifikasi('p_t8eWJm2f4', 'Peterpan', 'Menghapus Jejakmu')">Peterpan - Menghapus Jejakmu</button>
+      <button class="tag-btn" onclick="pilihLaguTerverifikasi('k4V3Mo61fJM', 'Adele', 'Someone Like You')">Adele - Someone Like You</button>
+      <button class="tag-btn" onclick="pilihLaguTerverifikasi('L3wKzyIN1yk', 'Bruno Mars', 'When I Was Your Man')">Bruno Mars - When I Was Your Man</button>
     </div>
 
     <div id="searchResults"></div>
@@ -186,57 +214,50 @@
   <!-- Panggung Utama & Lirik -->
   <div class="stage-container">
     <div class="video-box">
-      <!-- Native Iframe yang pasti memuat video -->
-      <iframe id="mainPlayer" 
-              src="https://www.youtube.com/embed/k4V3Mo61fJM?autoplay=0&enablejsapi=1&rel=0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowfullscreen>
-      </iframe>
-      <!-- Animasi Boo -->
+      <div id="playerContainer"></div>
       <div id="booOverlay">👎 BOOOOOOOOO! 👎</div>
     </div>
 
     <div class="lyrics-box">
       <div class="lyrics-header">
         <h3>📜 Lirik Sinkron Otomatis</h3>
-        <div style="font-size: 0.8rem; display: flex; gap: 5px;">
+        <div style="font-size: 0.8rem; display: flex; gap: 5px; align-items: center;">
           <button onclick="adjustOffset(-0.5)" style="padding: 2px 6px;">-0.5s</button>
-          <span id="offsetVal">Offset: 0.0s</span>
+          <span id="offsetVal" style="color: var(--neon-cyan); font-weight: bold;">Offset: 0.0s</span>
           <button onclick="adjustOffset(0.5)" style="padding: 2px 6px;">+0.5s</button>
         </div>
       </div>
+      <div class="lyrics-hint">💡 <b>Tips Pas:</b> Jika lirik balapan/telat, <b>KLIK baris kata</b> yang sedang terdengar di video!</div>
       <div class="lyrics-scroll" id="lyricsContainer">
-        <p style="color: #666; margin-top: 50px;">Lirik akan muncul di sini...</p>
+        <p style="color: #666; margin-top: 50px;">Memuat lirik...</p>
       </div>
     </div>
   </div>
 
   <!-- Panel Bawah -->
   <div class="bottom-panel">
-    <!-- Soundboard Super Meriah -->
+    <!-- Soundboard -->
     <div class="card">
       <div class="card-header-flex">
-        <h4>🔥 Efek Suara Panggung & Ejekan</h4>
+        <h4>🔥 Efek Sorakan Panggung</h4>
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 0.75rem; color: var(--neon-green); font-weight: bold;" id="boostLabel">VOL: 100% (Stereo)</span>
+          <span style="font-size: 0.75rem; color: var(--neon-green); font-weight: bold;" id="boostLabel">VOL: 100%</span>
           <input type="range" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updateFxBoost(this.value)" style="width: 80px;">
         </div>
       </div>
 
       <div class="soundboard-grid">
-        <button class="btn-sound" onclick="playRealSound('applause')"><span>👏</span>Tepuk Gemuruh</button>
-        <button class="btn-sound" onclick="playRealSound('cheer')"><span>🏟️</span>Sorak Stadion</button>
+        <button class="btn-sound" onclick="playRealSound('applause')"><span>👏</span>Tepuk Tangan</button>
+        <button class="btn-sound" onclick="playRealSound('cheer')"><span>🏟️</span>Sorak Heboh</button>
         <button class="btn-sound btn-boo" onclick="playRealSound('boo')"><span>👎</span>BOOO! (Meledek)</button>
         <button class="btn-sound" onclick="playRealSound('airhorn')"><span>🚨</span>DJ Air Horn</button>
-        <button class="btn-sound" onclick="playRealSound('wrong')"><span>❌</span>Tetot / Salah</button>
         <button class="btn-sound" onclick="playRealSound('victory')"><span>🎺</span>Terompet Juara</button>
-        <button class="btn-sound btn-mega" onclick="playMegaParty()"><span>💥</span>PESTA MAKSIMAL (SEMUA BUNYI)!</button>
       </div>
     </div>
 
-    <!-- Kontrol Suara & Skor -->
+    <!-- Mic & Skor -->
     <div class="card">
-      <h4>🎙️ Mic & Skor</h4>
+      <h4>🎙️ Mic & Kontrol</h4>
       <div class="mic-controls">
         <button id="micBtn" class="btn-primary" onclick="toggleMicrophone()" style="background: #333; color: #fff;">Nyalakan Mic</button>
         
@@ -251,12 +272,12 @@
           <input type="range" id="micEcho" min="0" max="0.8" step="0.1" value="0.3" onchange="updateMicEcho(this.value)">
         </div>
 
-        <button class="btn-score" onclick="hitungSkorAkhir()">🏁 Cek Skor!</button>
+        <button class="btn-score" onclick="hitungSkorOtomatis(true)">🏁 Tes Skor</button>
       </div>
     </div>
   </div>
 
-  <!-- Pop-up Skor -->
+  <!-- Modal Pop-up Skor Otomatis -->
   <div class="score-modal" id="scoreModal">
     <div class="score-card">
       <h2>🏆 HASIL KARAOKE ANDA</h2>
@@ -270,209 +291,264 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script>
-    // === 1. AUDIO ENGINE: REKAMAN SUARA ASLI (REAL SAMPLES) + STEREO BOOST ===
+    // === 1. AUDIO SAMPLES ENGINE ===
     let soundMasterVolume = 1.0;
-
     const SOUND_URLS = {
       applause: 'https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/sound-board/sounds/applause.mp3',
       boo: 'https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/sound-board/sounds/boo.mp3',
       cheer: 'https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/sound-board/sounds/victory.mp3',
       victory: 'https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/sound-board/sounds/tada.mp3',
-      wrong: 'https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/sound-board/sounds/wrong.mp3',
       airhorn: 'https://cdn.jsdelivr.net/gh/mecvg/macboard@main/sounds/airhorn.mp3'
     };
 
     function updateFxBoost(val) {
       soundMasterVolume = parseFloat(val);
-      document.getElementById('boostLabel').innerText = `VOL: ${Math.round(soundMasterVolume * 100)}% (Stereo)`;
+      document.getElementById('boostLabel').innerText = `VOL: ${Math.round(soundMasterVolume * 100)}%`;
     }
 
-    // Memutar rekaman asli dengan teknik Dual-Instance (Lebih Keras & Mengisi Ruangan)
     function playRealSound(type) {
       const url = SOUND_URLS[type];
       if (!url) return;
 
-      // Animasi Boo jika tombol meledek ditekan
       if (type === 'boo') {
         const overlay = document.getElementById('booOverlay');
         overlay.style.display = 'block';
-        setTimeout(() => overlay.style.display = 'none', 2500);
+        setTimeout(() => overlay.style.display = 'none', 3000);
       }
 
       try {
-        const audio1 = new Audio(url);
-        audio1.volume = Math.min(1.0, soundMasterVolume);
-        audio1.play().catch(e => console.log('Audio error', e));
+        const a1 = new Audio(url);
+        a1.volume = Math.min(1.0, soundMasterVolume);
+        a1.play().catch(() => {});
 
-        // Lapisan suara kedua untuk efek gemuruh stadion
-        if (soundMasterVolume >= 0.8) {
+        // Dual-Layer Stereo Booster
+        if (soundMasterVolume > 0.8) {
           setTimeout(() => {
-            const audio2 = new Audio(url);
-            audio2.volume = Math.min(1.0, soundMasterVolume * 0.8);
-            audio2.play().catch(() => {});
-          }, 60);
+            const a2 = new Audio(url);
+            a2.volume = Math.min(1.0, soundMasterVolume * 0.8);
+            a2.play().catch(() => {});
+          }, 50);
         }
-      } catch (err) {
-        console.error(err);
-      }
+      } catch (e) {}
     }
 
-    function playMegaParty() {
-      playRealSound('airhorn');
-      setTimeout(() => playRealSound('cheer'), 300);
-      setTimeout(() => playRealSound('applause'), 600);
-    }
-
-    // === 2. PLAYER CONTROLLER: 100% NATIVE & STABIL ===
+    // === 2. PLAYER & OTOMATIS MUNCUL SKOR SAAT SELESAI ===
     let player = null;
     let syncInterval = null;
     let syncedLyrics = [];
     let lyricOffset = 0;
-    let currentVideoId = 'k4V3Mo61fJM';
+    let currentVideoId = 'j4tFqgJ13mE';
+    let isScoredThisSong = false; // Mencegah hitung ganda
 
-    // Dipanggil otomatis jika YouTube IFrame API berhasil dimuat
     function onYouTubeIframeAPIReady() {
-      try {
-        player = new YT.Player('mainPlayer', {
-          events: {
-            'onStateChange': onPlayerStateChange
-          }
-        });
-      } catch (e) {
-        console.warn('IFrame API manual mode aktif.');
-      }
+      player = new YT.Player('playerContainer', {
+        height: '100%',
+        width: '100%',
+        videoId: currentVideoId,
+        playerVars: { autoplay: 0, controls: 1, rel: 0 },
+        events: {
+          'onStateChange': onPlayerStateChange,
+          'onReady': () => { fetchLyrics('Sheila On 7 Dan'); }
+        }
+      });
     }
 
     function onPlayerStateChange(event) {
       if (event.data === YT.PlayerState.PLAYING) {
         if (syncInterval) clearInterval(syncInterval);
-        syncInterval = setInterval(updateLyricsSync, 250);
+        syncInterval = setInterval(updateLyricsSync, 200);
       } else if (event.data === YT.PlayerState.ENDED) {
+        // OTOMATIS HITUNG SKOR SAAT LAGU SELESAI!
         clearInterval(syncInterval);
-        if (totalSingingSamples > 20) hitungSkorAkhir();
+        hitungSkorOtomatis();
       } else {
         clearInterval(syncInterval);
       }
     }
 
-    // Fungsi Utama: Mengganti Video dengan Garansi 100% Terbuka
-    function gantiVideoUtama(videoId, judulLagu) {
+    function gantiLagu(videoId, songTitle) {
       currentVideoId = videoId;
-      const iframe = document.getElementById('mainPlayer');
-      
-      // Update src secara native (selalu bekerja meski API sedang macet)
-      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0`;
-
-      // Jika player API aktif, sinkronkan juga
-      if (player && typeof player.loadVideoById === 'function') {
-        try { player.loadVideoById(videoId); } catch(e) {}
-      }
-
-      // Mulai sinkronisasi lirik
-      fetchLyrics(judulLagu || 'Lagu');
-    }
-
-    // Ekstrak ID dari segala jenis link YouTube
-    function extractVideoID(input) {
-      const match = input.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-      return match ? match[1] : (input.length === 11 && !input.includes(' ') ? input : null);
-    }
-
-    function tanganiInput() {
-      const inputVal = document.getElementById('searchInput').value.trim();
-      if (!inputVal) return alert('Ketik judul lagu atau tempel link video!');
-
-      // Cek apakah input berupa Link YouTube langsung
-      const directId = extractVideoID(inputVal);
-      if (directId) {
-        gantiVideoUtama(directId, 'Lagu Pilihan');
-        document.getElementById('searchResults').style.display = 'none';
-      } else {
-        cariVideoKaraoke();
-      }
-    }
-
-    document.getElementById('searchInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') tanganiInput();
-    });
-
-    function pilihLaguLangsung(videoId, songTitle) {
-      gantiVideoUtama(videoId, songTitle);
-      document.getElementById('searchResults').style.display = 'none';
+      isScoredThisSong = false;
+      lyricOffset = 0;
       totalSingingSamples = 0;
       onPitchSamples = 0;
+      document.getElementById('offsetVal').innerText = `Offset: 0.0s`;
+
+      if (player && typeof player.loadVideoById === 'function') {
+        player.loadVideoById(videoId);
+      }
+      fetchLyrics(songTitle);
     }
 
-    // === 3. PENCARIAN YOUTUBE INTERNAL DENGAN MULTI-MIRROR ===
-    const MIRROR_INSTANCES = [
-      'https://inv.nadeko.net',
-      'https://invidious.flokinet.to',
-      'https://invidious.privacydev.net'
+    // === 3. SISTEM SKOR OTOMATIS DENGAN 3 KATEGORI SORAKAN ===
+    function hitungSkorOtomatis(isManualTest = false) {
+      if (isScoredThisSong && !isManualTest) return;
+      isScoredThisSong = true;
+
+      let finalScore;
+      // Jika mic aktif dan user bernyanyi
+      if (totalSingingSamples >= 15) {
+        const ratio = onPitchSamples / totalSingingSamples;
+        finalScore = Math.floor(65 + (ratio * 32) + (Math.random() * 3));
+      } else {
+        // Jika mic mati / nyanyi terlalu sedikit: skor acak rendah
+        finalScore = Math.floor(58 + Math.random() * 15); // Kisaran 58 - 73 (Skor Rendah)
+      }
+
+      if (finalScore > 99) finalScore = 99;
+
+      let grade = "";
+      let comment = "";
+
+      // 1. SKOR TINGGI (>= 90): Tepuk Tangan Meriah + Sorak Heboh + Terompet!
+      if (finalScore >= 90) {
+        grade = "🏆 GRADE S (LUAR BIASA!)";
+        comment = "Suara emas! Stadion berguncang karena penampilan memukau Anda!";
+        playRealSound('applause');
+        setTimeout(() => playRealSound('cheer'), 400);
+        setTimeout(() => playRealSound('victory'), 900);
+      } 
+      // 2. SKOR SEDANG (75 - 89): Tepuk Tangan Hangat
+      else if (finalScore >= 75) {
+        grade = "👏 GRADE B (BAGUS)";
+        comment = "Penampilan yang enak didengar dan stabil! Pertahankan!";
+        playRealSound('applause');
+      } 
+      // 3. SKOR RENDAH (< 75): Sorakan BOOO! Meledek
+      else {
+        grade = "👎 GRADE D (FALS TOTAL)";
+        comment = "Aduh ampun! Nadanya kabur ke mana-mana, penonton pada kabur!";
+        playRealSound('boo');
+      }
+
+      document.getElementById('finalScoreVal').innerText = finalScore;
+      document.getElementById('finalGradeVal').innerText = grade;
+      document.getElementById('finalCommentVal').innerText = comment;
+      document.getElementById('scoreModal').style.display = 'flex';
+    }
+
+    function closeScoreModal() {
+      document.getElementById('scoreModal').style.display = 'none';
+    }
+
+    // === 4. PENCARIAN LAGU ANTI-MACET ===
+    const PIPED_APIS = [
+      'https://pipedapi.kavin.rocks',
+      'https://api.piped.yt',
+      'https://pipedapi.adminforge.de'
     ];
 
-    async function cariVideoKaraoke() {
+    async function mulaiPencarian() {
       const query = document.getElementById('searchInput').value.trim();
       const resultsContainer = document.getElementById('searchResults');
       const searchBtn = document.getElementById('searchBtn');
 
+      if (!query) return alert('Ketik judul lagu terlebih dahulu!');
+
+      const directId = extractVideoID(query);
+      if (directId) {
+        gantiLagu(directId, query);
+        resultsContainer.style.display = 'none';
+        return;
+      }
+
       searchBtn.innerText = "Mencari...";
       searchBtn.disabled = true;
       resultsContainer.style.display = 'grid';
-      resultsContainer.innerHTML = '<p style="color: var(--neon-cyan); grid-column: 1/-1;">Sedang mencari video karaoke YouTube...</p>';
+      resultsContainer.innerHTML = '<p style="color: var(--neon-cyan); grid-column: 1/-1;">Mencari video karaoke...</p>';
 
       let videos = [];
-      for (const instance of MIRROR_INSTANCES) {
+
+      for (const api of PIPED_APIS) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 3500);
-          const res = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(query + " karaoke")}&type=video`, {
+          const timeout = setTimeout(() => controller.abort(), 3500);
+          const res = await fetch(`${api}/search?q=${encodeURIComponent(query + " karaoke")}&filter=videos`, {
             signal: controller.signal
           });
-          clearTimeout(timeoutId);
+          clearTimeout(timeout);
           if (res.ok) {
             const data = await res.json();
-            videos = data.filter(item => item.videoId || item.type === 'video').slice(0, 6);
-            if (videos.length > 0) break;
+            if (data.items && data.items.length > 0) {
+              videos = data.items.slice(0, 6).map(item => ({
+                id: item.url.replace('/watch?v=', ''),
+                title: item.title,
+                author: item.uploaderName || 'Karaoke',
+                thumb: item.thumbnail
+              }));
+              break;
+            }
           }
         } catch (e) {}
       }
 
-      searchBtn.innerText = "🔍 Cari / Buka";
+      // Fallback ke iTunes jika Piped timeout
+      if (videos.length === 0) {
+        try {
+          const itunesRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=4`);
+          const itunesData = await itunesRes.json();
+          if (itunesData.results && itunesData.results.length > 0) {
+            videos = itunesData.results.map(r => ({
+              id: null,
+              searchQuery: `${r.artistName} ${r.trackName}`,
+              title: `${r.artistName} - ${r.trackName} (Karaoke)`,
+              author: r.collectionName || 'Official Audio',
+              thumb: r.artworkUrl100
+            }));
+          }
+        } catch (e) {}
+      }
+
+      searchBtn.innerText = "🔍 Cari Lagu";
       searchBtn.disabled = false;
 
       if (videos.length === 0) {
         resultsContainer.innerHTML = `
           <div style="grid-column: 1/-1; color: #ff9999; padding: 10px;">
-            <p>Pencarian otomatis sibuk. Anda bisa langsung salin & tempel link YouTube karaoke ke kotak di atas lalu klik Cari/Buka!</p>
+            <p>Pencarian sibuk. Anda bisa langsung tempel Link YouTube karaoke ke kolom pencarian lalu klik Cari!</p>
           </div>
         `;
         return;
       }
 
       resultsContainer.innerHTML = videos.map(v => {
-        const id = v.videoId;
-        const title = v.title.replace(/'/g, "\\'");
-        const author = v.author || 'Karaoke';
-        const thumb = `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+        const cleanTitle = v.title.replace(/'/g, "\\'");
+        const action = v.id 
+          ? `gantiLagu('${v.id}', '${cleanTitle}')` 
+          : `fetchLyrics('${v.searchQuery}')`;
+
         return `
-          <div class="result-item" onclick="pilihLaguLangsung('${id}', '${title}')">
-            <img src="${thumb}" alt="thumb">
+          <div class="result-item" onclick="${action}; document.getElementById('searchResults').style.display='none';">
+            <img src="${v.thumb}" alt="thumb">
             <div class="result-item-info">
               <strong>${v.title}</strong>
-              <span>${author}</span>
+              <span>${v.author}</span>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // === 4. LIRIK OTOMATIS (LRCLIB) ===
+    function extractVideoID(input) {
+      const match = input.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      return match ? match[1] : (input.length === 11 && !input.includes(' ') ? input : null);
+    }
+
+    function pilihLaguTerverifikasi(videoId, artist, title) {
+      document.getElementById('searchResults').style.display = 'none';
+      gantiLagu(videoId, `${artist} ${title}`);
+    }
+
+    // === 5. FETCH LIRIK & TAP TO SYNC ===
     async function fetchLyrics(songTitle) {
       const container = document.getElementById('lyricsContainer');
-      container.innerHTML = '<p style="color: var(--neon-cyan)">Mengambil lirik sinkron...</p>';
+      container.innerHTML = '<p style="color: var(--neon-cyan)">Mengambil lirik yang sesuai...</p>';
       syncedLyrics = [];
 
-      const cleanTitle = songTitle.replace(/karaoke|instrumental|no vocal|lirik|lyrics/gi, '').trim();
+      const cleanTitle = songTitle
+        .replace(/karaoke|instrumental|no vocal|minus one|lirik|lyrics|official|audio|video|hd|hq/gi, '')
+        .replace(/[\(\)\[\]\-]/g, ' ')
+        .trim();
 
       try {
         const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(cleanTitle)}`);
@@ -510,32 +586,50 @@
     function renderLyrics() {
       const container = document.getElementById('lyricsContainer');
       container.innerHTML = syncedLyrics.map((item, idx) => 
-        `<div class="lyrics-line" id="lyric-${idx}">${item.text}</div>`
+        `<div class="lyrics-line" id="lyric-${idx}" onclick="kalibrasiKeLirikIni(${idx})">${item.text}</div>`
       ).join('');
     }
 
+    function kalibrasiKeLirikIni(index) {
+      if (!player || typeof player.getCurrentTime !== 'function') return;
+      const targetLyricTime = syncedLyrics[index].time;
+      const currentVideoTime = player.getCurrentTime();
+      lyricOffset = currentVideoTime - targetLyricTime;
+      document.getElementById('offsetVal').innerText = `Offset: ${lyricOffset > 0 ? '+' : ''}${lyricOffset.toFixed(1)}s`;
+      updateLyricsSync();
+    }
+
     function updateLyricsSync() {
-      if (!player || !player.getCurrentTime || syncedLyrics.length === 0) return;
-      try {
-        const currentTime = player.getCurrentTime() + lyricOffset;
-        let activeIndex = -1;
-
-        for (let i = 0; i < syncedLyrics.length; i++) {
-          if (currentTime >= syncedLyrics[i].time) activeIndex = i;
-          else break;
+      if (!player || typeof player.getCurrentTime !== 'function') return;
+      
+      // Deteksi waktu akhir lagu (cadangan jika event ENDED lambat)
+      if (typeof player.getDuration === 'function') {
+        const dur = player.getDuration();
+        const cur = player.getCurrentTime();
+        if (dur > 20 && cur >= dur - 1.5) {
+          hitungSkorOtomatis();
         }
+      }
 
-        if (activeIndex !== -1) {
-          document.querySelectorAll('.lyrics-line').forEach((el, i) => {
-            if (i === activeIndex) {
-              el.classList.add('active');
-              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else {
-              el.classList.remove('active');
-            }
-          });
-        }
-      } catch (e) {}
+      if (syncedLyrics.length === 0) return;
+      const currentTime = player.getCurrentTime() - lyricOffset;
+      let activeIndex = -1;
+
+      for (let i = 0; i < syncedLyrics.length; i++) {
+        if (currentTime >= syncedLyrics[i].time) activeIndex = i;
+        else break;
+      }
+
+      if (activeIndex !== -1) {
+        document.querySelectorAll('.lyrics-line').forEach((el, i) => {
+          if (i === activeIndex) {
+            el.classList.add('active');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+            el.classList.remove('active');
+          }
+        });
+      }
     }
 
     function adjustOffset(delta) {
@@ -543,7 +637,7 @@
       document.getElementById('offsetVal').innerText = `Offset: ${lyricOffset.toFixed(1)}s`;
     }
 
-    // === 5. MIC, NADA KUNCI & DETEKSI SKOR ===
+    // === 6. MIC & AUDIO ANALYZER ===
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let micStream, micSource, micGain, delayNode, feedbackGain, micAnalyser, pitchFilter;
     let currentKeySemitone = 0;
@@ -630,53 +724,17 @@
       trackAudio();
     }
 
-    function hitungSkorAkhir() {
-      if (totalSingingSamples < 20) {
-        alert("Nyalakan mic dan bernyanyilah sedikit lebih lama sebelum cek skor!");
-        return;
-      }
-
-      const ratio = onPitchSamples / totalSingingSamples;
-      let finalScore = Math.floor(70 + (ratio * 28) + (Math.random() * 2));
-      if (finalScore > 99) finalScore = 99;
-
-      let grade = "GRADE B";
-      let comment = "Cukup bagus! Lebih percaya diri lagi ya!";
-
-      if (finalScore >= 92) {
-        grade = "GRADE S (SEMPURNA!)";
-        comment = "Luar biasa! Vokal stabil, artikulasi mantap seperti penyanyi aslinya!";
-        playRealSound('applause');
-      } else if (finalScore >= 83) {
-        grade = "GRADE A (HEBAT)";
-        comment = "Penampilan memukau! Sedikit lagi masuk label rekaman!";
-        playRealSound('cheer');
-      } else if (finalScore >= 75) {
-        grade = "GRADE B (BAGUS)";
-        comment = "Keren, nada pas! Coba kuasai nafas di bagian reff ya!";
-        playRealSound('applause');
+    // === 7. FITUR LAYAR PENUH (FULLSCREEN) ===
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
       } else {
-        grade = "GRADE C (FALS)";
-        comment = "Aduh, nadanya banyak yang meleset! Coba latihan lagi!";
-        playRealSound('boo'); // Bunyikan Boo jika nilainya jelek!
+        if (document.exitFullscreen) document.exitFullscreen();
       }
-
-      document.getElementById('finalScoreVal').innerText = finalScore;
-      document.getElementById('finalGradeVal').innerText = grade;
-      document.getElementById('finalCommentVal').innerText = comment;
-      document.getElementById('scoreModal').style.display = 'flex';
-
-      totalSingingSamples = 0;
-      onPitchSamples = 0;
     }
 
-    function closeScoreModal() {
-      document.getElementById('scoreModal').style.display = 'none';
-    }
-
-    // Inisialisasi lirik awal
-    window.addEventListener('DOMContentLoaded', () => {
-      fetchLyrics('Adele Someone Like You');
+    document.getElementById('searchInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') mulaiPencarian();
     });
   </script>
 </body>
