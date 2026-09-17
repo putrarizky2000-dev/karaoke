@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Studio Karaoke Neon Pro - Smart Lyrics Edition</title>
+  <!-- YouTube Official Player API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
   <style>
     :root {
       --bg: #0b0c10;
@@ -108,7 +110,7 @@
       aspect-ratio: 16/9; position: relative; border: 1px solid #333; width: 100%;
       display: flex; justify-content: center; align-items: center;
     }
-    #playerContainer { width: 100%; height: 100%; }
+    #playerContainer { width: 100%; height: 100%; position: relative; }
     #playerContainer iframe { width: 100%; height: 100%; border: none; }
 
     #standbyScreen {
@@ -137,7 +139,7 @@
     .lyrics-box {
       background: var(--card-bg); border-radius: 12px; padding: clamp(12px, 2vw, 20px);
       display: flex; flex-direction: column; height: 100%; min-height: 380px; max-height: 520px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1); position: relative;
     }
     .lyrics-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
     .lyrics-header h3 { color: var(--neon-pink); font-size: clamp(1rem, 2vw, 1.2rem); }
@@ -147,22 +149,39 @@
     
     .lyrics-scroll {
       flex: 1; overflow-y: auto; text-align: center;
-      display: flex; flex-direction: column; gap: 14px; padding: 30px 0;
+      display: flex; flex-direction: column; gap: 12px; padding: 40px 10px;
       position: relative;
-      overscroll-behavior: contain; /* Mengunci scroll agar tidak mengguncang layar utama */
+      overscroll-behavior: contain;
     }
+    
     .lyrics-line {
-      font-size: clamp(1rem, 1.8vw, 1.2rem); color: #777; transition: color 0.25s ease, transform 0.25s ease, background 0.25s ease;
-      padding: 8px 12px; border-radius: 6px;
-      cursor: pointer; user-select: none; line-height: 1.4;
+      font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+      color: #6c757d;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      line-height: 1.45;
+      transform-origin: center center;
+      transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
     }
-    .lyrics-line:hover { color: #ccc; background: rgba(255,255,255,0.05); }
+    .lyrics-line:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    
     .lyrics-line.active {
-      color: var(--neon-cyan); font-size: clamp(1.2rem, 2.2vw, 1.45rem); font-weight: bold;
-      text-shadow: 0 0 14px rgba(102, 252, 241, 0.9);
+      color: var(--neon-cyan);
+      font-weight: 800;
+      text-shadow: 0 0 16px rgba(102, 252, 241, 0.8);
       background: rgba(102, 252, 241, 0.12);
-      transform: scale(1.02);
+      transform: scale(1.05);
     }
+
+    #resumeSyncBtn {
+      display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: var(--neon-pink); color: #fff; font-size: 0.8rem; font-weight: bold;
+      padding: 6px 14px; border-radius: 20px; border: none; cursor: pointer; z-index: 20;
+      box-shadow: 0 4px 15px rgba(255,0,127,0.5);
+    }
+    #resumeSyncBtn:hover { transform: translateX(-50%) scale(1.05); }
 
     /* Bottom Panel */
     .bottom-panel {
@@ -182,11 +201,6 @@
     .btn-sound span { font-size: 1.5rem; }
     .btn-boo { background: #4a151b; border: 1px solid var(--neon-red); color: #ff9999; }
     .btn-boo:hover { background: var(--neon-red); color: #fff; }
-
-    .mic-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .key-control { display: flex; align-items: center; gap: 8px; background: #121820; padding: 6px 12px; border-radius: 8px; border: 1px solid #45a29e; }
-    .key-btn { padding: 4px 10px; font-size: 1rem; background: var(--neon-cyan); color: #000; border-radius: 4px; }
-    .slider-group { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: var(--text-muted); }
 
     /* Modals */
     .modal-backdrop {
@@ -259,10 +273,13 @@
           <button style="background:var(--neon-cyan); color:#000;" onclick="adjustOffset(0.5)">+0.5s</button>
         </div>
       </div>
-      <div class="lyrics-hint">💡 Klik baris lirik jika ingin mencocokkan tempo lagu secara instan!</div>
+      <div class="lyrics-hint">💡 Bebas scroll lirik kapan saja tanpa takut ditarik paksa!</div>
+      
       <div class="lyrics-scroll" id="lyricsContainer">
         <p style="color: #666; margin-top: 50px;">Lirik akan muncul otomatis di samping saat lagu diputar...</p>
       </div>
+      
+      <button id="resumeSyncBtn" onclick="lanjutkanAutoScroll()">🔄 Ikuti Lirik Lagu</button>
     </div>
   </div>
 
@@ -287,24 +304,22 @@
       </div>
     </div>
 
-    <!-- Mic & Kontrol -->
+    <!-- Status & Kontrol Skor -->
     <div class="card">
-      <h4>🎙️ Mic & Kontrol Nada</h4>
-      <div class="mic-controls">
-        <button id="micBtn" class="btn-primary" onclick="toggleMicrophone()" style="background: #333; color: #fff;">Nyalakan Mic</button>
-        
-        <div class="key-control" title="Geser nada vokal">
-          <button class="key-btn" onclick="adjustPitchKey(-1)">♭ -1</button>
-          <span id="keyDisplay" style="font-weight: bold; color: var(--neon-cyan);">Key: 0</span>
-          <button class="key-btn" onclick="adjustPitchKey(1)">♯ +1</button>
+      <div class="card-header-flex">
+        <h4>🎤 Status Karaoke</h4>
+        <span style="font-size: 0.75rem; background: rgba(57, 255, 20, 0.12); color: var(--neon-green); border: 1px solid var(--neon-green); padding: 4px 10px; border-radius: 20px; font-weight: bold;">
+          ● Mode Mic Eksternal
+        </span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+          Bernyanyilah langsung menggunakan mikrofon eksternal / mixer Anda. Begitu lagu selesai diputar sampai habis, skor otomatis akan dinilai secara acak!
+        </p>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button class="btn-score" onclick="hitungSkorOtomatis(true)">🏁 Tes Munculkan Skor</button>
+          <span style="font-size: 0.75rem; color: var(--neon-cyan);">Auto-Skor: Deteksi Akhir Lagu</span>
         </div>
-
-        <div class="slider-group">
-          <label>Gema (Echo)</label>
-          <input type="range" id="micEcho" min="0" max="0.8" step="0.1" value="0.3" onchange="updateMicEcho(this.value)">
-        </div>
-
-        <button class="btn-score" onclick="hitungSkorOtomatis(true)">🏁 Tes Skor</button>
       </div>
     </div>
   </div>
@@ -312,7 +327,7 @@
   <!-- Modal Skor -->
   <div class="modal-backdrop" id="scoreModal">
     <div class="modal-card" style="border-color: var(--neon-gold);">
-      <h2>🏆 HASIL KARAOKE ANDA</h2>
+      <h2>🏆 LAGU SELESAI - HASIL ANDA</h2>
       <div class="score-number" id="finalScoreVal">0</div>
       <div style="font-size: 1.4rem; font-weight: bold; color: var(--neon-cyan);" id="finalGradeVal">GRADE A</div>
       <p style="margin: 15px 0; color: var(--text-muted);" id="finalCommentVal">Suara Anda luar biasa!</p>
@@ -320,7 +335,7 @@
     </div>
   </div>
 
-  <!-- Modal Input Lirik Sendiri -->
+  <!-- Modal Input Lirik Manual -->
   <div class="modal-backdrop" id="manualLyricsModal">
     <div class="modal-card" style="max-width: 520px; text-align: left;">
       <h3 style="color: var(--neon-cyan); margin-bottom: 8px;">📝 Tempel / Masukkan Lirik Lagu</h3>
@@ -381,47 +396,60 @@
       } catch (e) {}
     }
 
-    // === 2. PLAYER SISTEM & SINKRONISASI LIRIK ANTI-GUNCANG ===
+    // === 2. PLAYER SISTEM & SINKRONISASI LIRIK ===
+    let ytPlayer = null;
+    let isYtApiReady = false;
     let currentVideoId = '';
     let lyricOffset = 0;
     let syncedLyrics = [];
     let lyricTimer = null;
     let songStartTime = 0;
-    let exactVideoCurrentTime = -1;
     let isScoredThisSong = false;
     let currentActiveLyricIndex = -1;
     let isUserScrollingLyrics = false;
     let userScrollReleaseTimer = null;
+    let isProgrammaticScroll = false;
 
-    // Pasang sensor scroll pengguna pada kotak lirik
-    const lyricsBoxElem = document.getElementById('lyricsContainer');
-    const handleUserScrollAction = () => {
-      isUserScrollingLyrics = true;
-      clearTimeout(userScrollReleaseTimer);
-      // Beri jeda 3.5 detik agar pengguna leluasa melihat lirik tanpa ditarik paksa
-      userScrollReleaseTimer = setTimeout(() => {
-        isUserScrollingLyrics = false;
-      }, 3500);
+    window.onYouTubeIframeAPIReady = function() {
+      isYtApiReady = true;
     };
 
-    lyricsBoxElem.addEventListener('wheel', handleUserScrollAction, { passive: true });
-    lyricsBoxElem.addEventListener('touchmove', handleUserScrollAction, { passive: true });
+    const lyricsBoxElem = document.getElementById('lyricsContainer');
+    const resumeBtn = document.getElementById('resumeSyncBtn');
+
+    function tanganiUserScrollManual() {
+      if (isProgrammaticScroll) return;
+      isUserScrollingLyrics = true;
+      resumeBtn.style.display = 'block';
+      clearTimeout(userScrollReleaseTimer);
+      userScrollReleaseTimer = setTimeout(() => {
+        lanjutkanAutoScroll();
+      }, 4000);
+    }
+
+    function lanjutkanAutoScroll() {
+      isUserScrollingLyrics = false;
+      resumeBtn.style.display = 'none';
+      currentActiveLyricIndex = -1;
+      updateLyricsSync();
+    }
+
+    lyricsBoxElem.addEventListener('wheel', tanganiUserScrollManual, { passive: true });
+    lyricsBoxElem.addEventListener('touchmove', tanganiUserScrollManual, { passive: true });
+    lyricsBoxElem.addEventListener('mousedown', tanganiUserScrollManual, { passive: true });
 
     function putarLaguKaraoke(videoId, title) {
       if (!videoId) return;
       currentVideoId = videoId;
       isScoredThisSong = false;
       lyricOffset = 0;
-      totalSingingSamples = 0;
-      onPitchSamples = 0;
-      exactVideoCurrentTime = -1;
       currentActiveLyricIndex = -1;
       isUserScrollingLyrics = false;
+      resumeBtn.style.display = 'none';
 
       document.getElementById('offsetVal').innerText = `0.0s`;
       document.getElementById('standbyScreen').style.display = 'none';
 
-      // Hilangkan hasil pencarian
       const searchBox = document.getElementById('searchResults');
       if (searchBox) {
         searchBox.style.display = 'none';
@@ -429,15 +457,33 @@
       }
       document.getElementById('suggestList').style.display = 'none';
 
-      // Putar video di iframe
       const container = document.getElementById('playerContainer');
-      container.innerHTML = `
-        <iframe id="karaokeIframe"
-                src="https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&playsinline=1" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen>
-        </iframe>
-      `;
+      container.innerHTML = '<div id="ytPlayerTarget" style="width:100%; height:100%;"></div>';
+
+      if (window.YT && window.YT.Player) {
+        ytPlayer = new YT.Player('ytPlayerTarget', {
+          width: '100%',
+          height: '100%',
+          videoId: videoId,
+          playerVars: {
+            autoplay: 1,
+            playsinline: 1,
+            rel: 0
+          },
+          events: {
+            'onReady': (e) => e.target.playVideo(),
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      } else {
+        container.innerHTML = `
+          <iframe id="karaokeIframe"
+                  src="https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0&playsinline=1" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+          </iframe>
+        `;
+      }
 
       songStartTime = Date.now();
       if (lyricTimer) clearInterval(lyricTimer);
@@ -446,15 +492,65 @@
       ambilLirikMultiTahap(title);
     }
 
-    // Waktu dari iframe
-    window.addEventListener('message', (e) => {
-      try {
-        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-        if (data && data.info && typeof data.info.currentTime === 'number') {
-          exactVideoCurrentTime = data.info.currentTime;
+    // DETEKSI AKHIR VIDEO UNTUK SKOR OTOMATIS
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        hitungSkorOtomatis(false);
+      }
+    }
+
+    function getCurrentPlaybackSeconds() {
+      if (ytPlayer && typeof ytPlayer.getCurrentTime === 'function') {
+        try {
+          const t = ytPlayer.getCurrentTime();
+          if (typeof t === 'number' && !isNaN(t)) return t;
+        } catch (e) {}
+      }
+      return (Date.now() - songStartTime) / 1000;
+    }
+
+    function updateLyricsSync() {
+      if (syncedLyrics.length === 0) return;
+
+      const currentTime = getCurrentPlaybackSeconds() - lyricOffset;
+      let activeIndex = -1;
+
+      for (let i = 0; i < syncedLyrics.length; i++) {
+        if (currentTime >= syncedLyrics[i].time) activeIndex = i;
+        else break;
+      }
+
+      if (activeIndex !== currentActiveLyricIndex) {
+        currentActiveLyricIndex = activeIndex;
+
+        document.querySelectorAll('.lyrics-line').forEach((el, i) => {
+          if (i === activeIndex) el.classList.add('active');
+          else el.classList.remove('active');
+        });
+
+        if (activeIndex !== -1 && !isUserScrollingLyrics) {
+          const activeEl = document.getElementById(`lyric-${activeIndex}`);
+          const container = document.getElementById('lyricsContainer');
+
+          if (activeEl && container) {
+            const elTop = activeEl.offsetTop;
+            const elHeight = activeEl.offsetHeight;
+            const containerHeight = container.clientHeight;
+            const targetScrollTop = elTop - (containerHeight / 2) + (elHeight / 2);
+
+            isProgrammaticScroll = true;
+            container.scrollTo({
+              top: Math.max(0, targetScrollTop),
+              behavior: 'smooth'
+            });
+
+            setTimeout(() => {
+              isProgrammaticScroll = false;
+            }, 300);
+          }
         }
-      } catch (err) {}
-    });
+      }
+    }
 
     // === 3. AUTOCOMPLETE (GOOGLE JSONP) ===
     function fetchGoogleSuggest(val) {
@@ -515,8 +611,6 @@
 
       if (!input) return alert('Silakan ketik nama lagu atau artis!');
       document.getElementById('suggestList').style.display = 'none';
-
-      masukFullscreen();
 
       const directId = extractVideoID(input);
       if (directId) {
@@ -631,7 +725,7 @@
       }
     }
 
-    // === 5. MESIN LIRIK SINKRON & SCROLL STABIL ===
+    // === 5. MESIN LIRIK SINKRON ===
     async function ambilLirikMultiTahap(videoTitle) {
       const container = document.getElementById('lyricsContainer');
       container.innerHTML = '<p style="color: var(--neon-cyan)">⏳ Mengambil lirik sinkron...</p>';
@@ -750,64 +844,8 @@
       const currentPlayTime = getCurrentPlaybackSeconds();
       lyricOffset = currentPlayTime - targetTime;
       document.getElementById('offsetVal').innerText = `${lyricOffset > 0 ? '+' : ''}${lyricOffset.toFixed(1)}s`;
-      currentActiveLyricIndex = -1; // Reset agar langsung update posisi baris
+      currentActiveLyricIndex = -1;
       updateLyricsSync();
-    }
-
-    function getCurrentPlaybackSeconds() {
-      if (exactVideoCurrentTime >= 0) return exactVideoCurrentTime;
-      return (Date.now() - songStartTime) / 1000;
-    }
-
-    // FUNGSI SINKRONISASI LIRIK TERBARU: HANYA SCROLL KOTAK LIRIK SECARA HALUS & TANPA GUNCANGAN
-    function updateLyricsSync() {
-      if (syncedLyrics.length === 0) return;
-
-      const iframe = document.getElementById('karaokeIframe');
-      if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage('{"event":"command","func":"getCurrentTime","args":""}', '*');
-        iframe.contentWindow.postMessage('{"event":"listening"}', '*');
-      }
-
-      const currentTime = getCurrentPlaybackSeconds() - lyricOffset;
-      let activeIndex = -1;
-
-      for (let i = 0; i < syncedLyrics.length; i++) {
-        if (currentTime >= syncedLyrics[i].time) activeIndex = i;
-        else break;
-      }
-
-      // Kunci perbaikan: HANYA jalankan animasi jika baris lirik benar-benar BERUBAH
-      if (activeIndex !== currentActiveLyricIndex) {
-        currentActiveLyricIndex = activeIndex;
-
-        document.querySelectorAll('.lyrics-line').forEach((el, i) => {
-          if (i === activeIndex) {
-            el.classList.add('active');
-          } else {
-            el.classList.remove('active');
-          }
-        });
-
-        // Hanya geser kontainer lirik jika pengguna tidak sedang scroll manual
-        if (activeIndex !== -1 && !isUserScrollingLyrics) {
-          const activeEl = document.getElementById(`lyric-${activeIndex}`);
-          const container = document.getElementById('lyricsContainer');
-
-          if (activeEl && container) {
-            const elRect = activeEl.getBoundingClientRect();
-            const contRect = container.getBoundingClientRect();
-            
-            // Hitung posisi tepat di tengah kotak lirik
-            const targetScrollTop = container.scrollTop + (elRect.top - contRect.top) - (container.clientHeight / 2) + (elRect.height / 2);
-            
-            container.scrollTo({
-              top: Math.max(0, targetScrollTop),
-              behavior: 'smooth'
-            });
-          }
-        }
-      }
     }
 
     function adjustOffset(delta) {
@@ -833,130 +871,62 @@
       document.getElementById('manualLyricsModal').style.display = 'none';
     }
 
-    // === 6. SKOR KARAOKE & MIC ===
+    // === 6. SKOR ACAK KARAOKE (MESIN KARAOKE REALISTIS) ===
     function hitungSkorOtomatis(isManual = false) {
       if (isScoredThisSong && !isManual) return;
       isScoredThisSong = true;
 
-      let finalScore;
-      if (totalSingingSamples >= 15) {
-        const ratio = onPitchSamples / totalSingingSamples;
-        finalScore = Math.floor(70 + (ratio * 26) + (Math.random() * 3));
-      } else {
-        finalScore = Math.floor(65 + Math.random() * 25);
-      }
+      // Tier skor acak yang seru dan realistis
+      const tiers = [
+        { 
+          min: 94, max: 99, 
+          grade: "🏆 GRADE S (DIVA BINTANG)", 
+          comment: "GOKIL! Vokal Anda membakar seisi ruangan bagaikan diva internasional!", 
+          sounds: ['applause', 'cheer', 'victory'] 
+        },
+        { 
+          min: 85, max: 93, 
+          grade: "⭐ GRADE A (PENYANYI TOP)", 
+          comment: "Luar biasa merdu! Penonton sangat menikmati lantunan suara Anda!", 
+          sounds: ['applause', 'cheer'] 
+        },
+        { 
+          min: 75, max: 84, 
+          grade: "👏 GRADE B (ASIK BANGET)", 
+          comment: "Penampilan yang stabil dan asyik! Terus pertahankan ritmenya!", 
+          sounds: ['applause'] 
+        },
+        { 
+          min: 60, max: 74, 
+          grade: "👎 GRADE C (FALS TAPI HEBOH)", 
+          comment: "Lagu ke mana nada ke mana, tapi yang penting goyang dan percaya diri!", 
+          sounds: ['boo'] 
+        }
+      ];
 
-      if (finalScore > 99) finalScore = 99;
+      // Peluang acak realistis: Grade A & S paling sering muncul
+      const randSeed = Math.random();
+      let selectedTier;
+      if (randSeed > 0.60) selectedTier = tiers[0];       // 40% kemungkinan Grade S
+      else if (randSeed > 0.20) selectedTier = tiers[1];  // 40% kemungkinan Grade A
+      else if (randSeed > 0.06) selectedTier = tiers[2];  // 14% kemungkinan Grade B
+      else selectedTier = tiers[3];                       // 6% lucu-lucuan Grade C
 
-      let grade = "";
-      let comment = "";
+      const finalScore = Math.floor(Math.random() * (selectedTier.max - selectedTier.min + 1)) + selectedTier.min;
 
-      if (finalScore >= 90) {
-        grade = "🏆 GRADE S (SEMPURNA!)";
-        comment = "Luar biasa! Pitch dan tempo Anda sangat akurat bagaikan penyanyi pro!";
-        playRealSound('applause');
-        setTimeout(() => playRealSound('cheer'), 400);
-        setTimeout(() => playRealSound('victory'), 800);
-      } else if (finalScore >= 75) {
-        grade = "👏 GRADE B (BAGUS)";
-        comment = "Penampilan yang stabil dan merdu! Pertahankan performanya!";
-        playRealSound('applause');
-      } else {
-        grade = "👎 GRADE D (FALS TOTAL)";
-        comment = "Aduh nadanya banyak yang meleset! Penonton mulai menyoraki!";
-        playRealSound('boo');
-      }
+      // Putar efek suara penonton otomatis
+      if (selectedTier.sounds.includes('applause')) playRealSound('applause');
+      if (selectedTier.sounds.includes('cheer')) setTimeout(() => playRealSound('cheer'), 400);
+      if (selectedTier.sounds.includes('victory')) setTimeout(() => playRealSound('victory'), 800);
+      if (selectedTier.sounds.includes('boo')) playRealSound('boo');
 
       document.getElementById('finalScoreVal').innerText = finalScore;
-      document.getElementById('finalGradeVal').innerText = grade;
-      document.getElementById('finalCommentVal').innerText = comment;
+      document.getElementById('finalGradeVal').innerText = selectedTier.grade;
+      document.getElementById('finalCommentVal').innerText = selectedTier.comment;
       document.getElementById('scoreModal').style.display = 'flex';
     }
 
-    let audioCtx = null;
-    let micStream, micSource, micGain, delayNode, feedbackGain, micAnalyser, pitchFilter;
-    let currentKeySemitone = 0;
-    let totalSingingSamples = 0, onPitchSamples = 0, isScoringActive = false;
-
-    async function toggleMicrophone() {
-      const btn = document.getElementById('micBtn');
-      if (!micStream) {
-        try {
-          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          if (audioCtx.state === 'suspended') await audioCtx.resume();
-
-          micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          micSource = audioCtx.createMediaStreamSource(micStream);
-          micGain = audioCtx.createGain();
-          delayNode = audioCtx.createDelay();
-          feedbackGain = audioCtx.createGain();
-          micAnalyser = audioCtx.createAnalyser();
-          micAnalyser.fftSize = 512;
-
-          pitchFilter = audioCtx.createBiquadFilter();
-          pitchFilter.type = 'peaking';
-          pitchFilter.frequency.value = 1000;
-          pitchFilter.gain.value = 0;
-
-          delayNode.delayTime.value = 0.25;
-          feedbackGain.gain.value = 0.3;
-
-          micSource.connect(pitchFilter);
-          pitchFilter.connect(micGain);
-          micGain.connect(micAnalyser);
-          micGain.connect(audioCtx.destination);
-          micGain.connect(delayNode);
-          delayNode.connect(feedbackGain);
-          feedbackGain.connect(delayNode);
-          delayNode.connect(audioCtx.destination);
-
-          btn.innerText = "Matikan Mic";
-          btn.style.background = "var(--neon-pink)";
-          isScoringActive = true;
-          mulaiAnalisisSuara();
-        } catch (e) {
-          alert("Akses mic ditolak: " + e.message);
-        }
-      } else {
-        micStream.getTracks().forEach(t => t.stop());
-        micStream = null;
-        isScoringActive = false;
-        btn.innerText = "Nyalakan Mic";
-        btn.style.background = "#333";
-      }
-    }
-
-    function updateMicEcho(val) { if (feedbackGain) feedbackGain.gain.value = val; }
-
-    function adjustPitchKey(step) {
-      currentKeySemitone += step;
-      if (currentKeySemitone > 6) currentKeySemitone = 6;
-      if (currentKeySemitone < -6) currentKeySemitone = -6;
-      document.getElementById('keyDisplay').innerText = (currentKeySemitone > 0 ? `Key: +${currentKeySemitone}` : `Key: ${currentKeySemitone}`);
-      if (pitchFilter) {
-        pitchFilter.frequency.value = 1000 * Math.pow(2, currentKeySemitone / 12);
-        pitchFilter.gain.value = currentKeySemitone * 2;
-      }
-    }
-
-    function mulaiAnalisisSuara() {
-      const dataArray = new Uint8Array(micAnalyser.frequencyBinCount);
-      function trackAudio() {
-        if (!isScoringActive) return;
-        micAnalyser.getByteFrequencyData(dataArray);
-        let sum = 0;
-        for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-        let average = sum / dataArray.length;
-        if (average > 15) {
-          totalSingingSamples++;
-          if (average > 25 && average < 100) onPitchSamples++;
-        }
-        requestAnimationFrame(trackAudio);
-      }
-      trackAudio();
-    }
-
-    // === 7. API KEY & AUTO-FULLSCREEN SISTEM ===
+    // === 7. API KEY & FULLSCREEN KONTROL ===
     function openApiKeyModal() {
       document.getElementById('customApiKeyInput').value = localStorage.getItem('user_yt_api_key') || '';
       document.getElementById('apiKeyModal').style.display = 'flex';
@@ -974,19 +944,14 @@
       document.getElementById('apiKeyModal').style.display = 'none';
     }
 
-    function masukFullscreen() {
+    function toggleFullscreen() {
       if (!document.fullscreenElement) {
         const el = document.documentElement;
         const rfs = el.requestFullscreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
-        if (rfs) {
-          rfs.call(el).catch(() => {});
-        }
+        if (rfs) rfs.call(el).catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
       }
-    }
-
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) masukFullscreen();
-      else if (document.exitFullscreen) document.exitFullscreen();
     }
 
     function extractVideoID(input) {
@@ -998,11 +963,6 @@
     function escapeHtml(text) {
       return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
-
-    window.addEventListener('DOMContentLoaded', () => masukFullscreen());
-    ['click', 'keydown', 'touchstart'].forEach(evt => {
-      document.addEventListener(evt, () => masukFullscreen(), { once: true });
-    });
 
     document.getElementById('searchInput').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') cariInstrumenKaraoke();
