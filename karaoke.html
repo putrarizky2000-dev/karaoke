@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Studio Karaoke Neon Pro + Scoring</title>
+  <title>Studio Karaoke Neon Pro - Stadium Edition</title>
   <style>
     :root {
       --bg: #0b0c10;
@@ -19,10 +19,9 @@
     body { background: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
     
     header { text-align: center; margin-bottom: 20px; }
-    header h1 { font-size: 2.2rem; color: var(--neon-cyan); text-shadow: 0 0 10px rgba(102, 252, 241, 0.5); }
+    header h1 { font-size: 2.2rem; color: var(--neon-cyan); text-shadow: 0 0 12px rgba(102, 252, 241, 0.6); }
     header p { color: var(--text-muted); font-size: 0.95rem; }
 
-    /* Search & Quick Bar */
     .search-panel {
       width: 100%; max-width: 1100px; margin-bottom: 15px;
       background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
@@ -42,7 +41,6 @@
     .btn-score { background: var(--neon-gold); color: #0b0c10; }
     .btn-score:hover { background: #e6c200; }
 
-    /* Quick Song Tags */
     .quick-tags { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
     .quick-tags span { font-size: 0.8rem; color: var(--text-muted); }
     .tag-btn {
@@ -51,7 +49,6 @@
     }
     .tag-btn:hover { background: var(--neon-pink); color: #fff; border-color: var(--neon-pink); }
 
-    /* In-App Search Results */
     #searchResults {
       display: none; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;
       margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; max-height: 300px; overflow-y: auto;
@@ -66,7 +63,6 @@
     .result-item-info strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #fff; }
     .result-item-info span { color: var(--text-muted); font-size: 0.75rem; }
 
-    /* Stage Layout */
     .stage-container {
       display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px;
       width: 100%; max-width: 1100px;
@@ -77,7 +73,6 @@
     }
     #player { width: 100%; height: 100%; }
 
-    /* Lyrics Display */
     .lyrics-box {
       background: var(--card-bg); border-radius: 12px; padding: 20px;
       display: flex; flex-direction: column; height: 420px;
@@ -96,30 +91,27 @@
       background: rgba(102, 252, 241, 0.08);
     }
 
-    /* Bottom Soundboard & Controls */
     .bottom-panel {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px;
       width: 100%; max-width: 1100px; margin-top: 20px;
     }
     .card { background: var(--card-bg); padding: 18px; border-radius: 12px; border: 1px solid #333; }
     .card h4 { margin-bottom: 12px; color: var(--text-muted); font-size: 0.95rem; text-transform: uppercase; }
 
-    /* Sound FX Buttons */
+    /* Soundboard Buttons */
     .soundboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
     .btn-sound {
       background: #2b323c; color: #fff; padding: 15px 5px; font-size: 0.85rem;
       border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px;
     }
-    .btn-sound:hover { background: var(--neon-pink); transform: translateY(-2px); }
-    .btn-sound span { font-size: 1.5rem; }
+    .btn-sound:hover { background: var(--neon-pink); transform: scale(1.05); }
+    .btn-sound span { font-size: 1.6rem; }
 
-    /* Mic & Key Controls */
     .mic-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .key-control { display: flex; align-items: center; gap: 8px; background: #121820; padding: 6px 12px; border-radius: 8px; border: 1px solid #45a29e; }
     .key-btn { padding: 4px 10px; font-size: 1rem; background: var(--neon-cyan); color: #000; border-radius: 4px; }
     .slider-group { display: flex; flex-direction: column; gap: 4px; font-size: 0.8rem; color: var(--text-muted); }
 
-    /* Pop-up Modal Skor */
     .score-modal {
       display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
       justify-content: center; align-items: center; z-index: 9999; backdrop-filter: blur(5px);
@@ -127,7 +119,7 @@
     .score-card {
       background: linear-gradient(135deg, #1f2833, #0b0c10); border: 2px solid var(--neon-gold);
       border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); animation: popUp 0.4s ease;
+      box-shadow: 0 0 35px rgba(255, 215, 0, 0.5); animation: popUp 0.4s ease;
     }
     @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .score-number { font-size: 5rem; font-weight: 900; color: var(--neon-gold); text-shadow: 0 0 20px rgba(255,215,0,0.8); margin: 10px 0; }
@@ -143,7 +135,7 @@
 
   <header>
     <h1>🎤 KARAOKE LIVE STUDIO PRO</h1>
-    <p>Dilengkapi Deteksi Skor Bernyanyi & Pengatur Kunci Nada!</p>
+    <p>Edisi Konser Stadion: Suara Penonton & Panggung Super Heboh!</p>
   </header>
 
   <!-- Panel Pencarian -->
@@ -186,27 +178,26 @@
     </div>
   </div>
 
-  <!-- Panel Kontrol & Skor -->
+  <!-- Panel Bawah -->
   <div class="bottom-panel">
-    <!-- Soundboard -->
+    <!-- Soundboard Super Heboh -->
     <div class="card">
-      <h4>🎉 Efek Sorakan Panggung</h4>
+      <h4>🔥 Efek Sorakan Panggung Spektakuler</h4>
       <div class="soundboard-grid">
-        <button class="btn-sound" onclick="playCheer()"><span>👏</span>Tepuk Tangan</button>
-        <button class="btn-sound" onclick="playCrowdCheer()"><span>🥳</span>Sorakan Heboh</button>
-        <button class="btn-sound" onclick="playAirhorn()"><span>📢</span>Air Horn</button>
-        <button class="btn-sound" onclick="playRimshot()"><span>🥁</span>Drum Ba-Dum!</button>
+        <button class="btn-sound" onclick="playSuperCheer()"><span>👏</span>Tepuk Gemuruh</button>
+        <button class="btn-sound" onclick="playStadiumRoar()"><span>🏟️</span>Sorak Stadion</button>
+        <button class="btn-sound" onclick="playHypeAirhorn()"><span>🚨</span>DJ Air Horn</button>
+        <button class="btn-sound" onclick="playStadiumDrumRoll()"><span>🥁</span>Roll & Cymbal</button>
       </div>
     </div>
 
-    <!-- Mic, Transpose & Tombol Skor -->
+    <!-- Kontrol Suara & Skor -->
     <div class="card">
-      <h4>🎙️ Nada Kunci, Mic & Skor</h4>
+      <h4>🎙️ Mic, Kunci & Penilaian</h4>
       <div class="mic-controls">
         <button id="micBtn" class="btn-primary" onclick="toggleMicrophone()" style="background: #333; color: #fff;">Nyalakan Mic</button>
         
-        <!-- Naik Turun Kunci Nada (Key Transpose) -->
-        <div class="key-control" title="Menggeser nada register vokal Anda naik/turun">
+        <div class="key-control" title="Geser nada register vokal">
           <button class="key-btn" onclick="adjustPitchKey(-1)">♭ -1</button>
           <span id="keyDisplay" style="font-weight: bold; color: var(--neon-cyan);">Key: 0</span>
           <button class="key-btn" onclick="adjustPitchKey(1)">♯ +1</button>
@@ -217,13 +208,12 @@
           <input type="range" id="micEcho" min="0" max="0.8" step="0.1" value="0.3" onchange="updateMicEcho(this.value)">
         </div>
 
-        <!-- Tombol Hitung Skor -->
         <button class="btn-score" onclick="hitungSkorAkhir()">🏁 Cek Skor!</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Pop-up Skor Karaoke -->
+  <!-- Pop-up Skor -->
   <div class="score-modal" id="scoreModal">
     <div class="score-card">
       <h2>🏆 HASIL KARAOKE ANDA</h2>
@@ -237,82 +227,197 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script>
-    // === 1. AUDIO SYNTHESIZER & EFFECTS ===
+    // === 1. AUDIO SYNTHESIZER ENGINE: SUPER HEBOH ===
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    function playCheer() {
+    // 1. TEPUK TANGAN GEMURUH (Ratusan tepukan beruntun / Standing Ovation)
+    function playSuperCheer() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      for (let i = 0; i < 20; i++) {
+      const count = 75; // Kerapatan tinggi
+      for (let i = 0; i < count; i++) {
         setTimeout(() => {
-          const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.05, audioCtx.sampleRate);
+          const bufferSize = audioCtx.sampleRate * 0.08;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
           const data = buffer.getChannelData(0);
-          for (let j = 0; j < data.length; j++) data[j] = Math.random() * 2 - 1;
+          for (let j = 0; j < data.length; j++) data[j] = (Math.random() * 2 - 1) * (1 - j / bufferSize);
+
           const noise = audioCtx.createBufferSource();
           noise.buffer = buffer;
+
           const filter = audioCtx.createBiquadFilter();
           filter.type = 'bandpass';
-          filter.frequency.value = 1000 + Math.random() * 600;
+          filter.frequency.value = 800 + Math.random() * 1200;
+          filter.Q.value = 1.8;
+
           const gain = audioCtx.createGain();
-          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-          noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+          const amp = 0.25 + Math.random() * 0.2;
+          gain.gain.setValueAtTime(amp, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
           noise.start();
-        }, i * (Math.random() * 40 + 10));
+        }, i * (Math.random() * 25 + 10));
       }
     }
 
-    function playCrowdCheer() {
+    // 2. SORAKAN STADION + SIULAN FANS (Stadium Crowd Roar with Concert Whistles)
+    function playStadiumRoar() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2.5, audioCtx.sampleRate);
+      const dur = 4.0;
+      const bufferSize = audioCtx.sampleRate * dur;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const data = buffer.getChannelData(0);
-      for (let j = 0; j < data.length; j++) data[j] = Math.random() * 2 - 1;
+      let lastOut = 0.0;
+
+      // Pink noise untuk gemuruh penonton yang dalam
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        data[i] = (lastOut + (0.02 * white)) / 1.02;
+        lastOut = data[i];
+        data[i] *= 3.5;
+      }
+
       const noise = audioCtx.createBufferSource();
       noise.buffer = buffer;
+
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(800, audioCtx.currentTime);
-      filter.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 1.5);
+      filter.frequency.setValueAtTime(600, audioCtx.currentTime);
+      filter.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 1.2);
+      filter.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + dur);
+      filter.Q.value = 1.0;
+
       const gain = audioCtx.createGain();
       gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.5);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.5);
-      noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-      noise.start();
-    }
+      gain.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.8);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
 
-    function playAirhorn() {
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      [466.16, 466.16, 466.16, 370.0, 415.3].forEach((freq, idx) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.1);
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime + idx * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + idx * 0.1 + 0.2);
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(audioCtx.currentTime + idx * 0.1);
-        osc.stop(audioCtx.currentTime + idx * 0.1 + 0.25);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+
+      // Tambahkan 3 Siulan Melengking Khas Konser (Stadium Whistles)
+      const whistlePitches = [1900, 2400, 2100];
+      whistlePitches.forEach((pitch, idx) => {
+        setTimeout(() => {
+          const osc = audioCtx.createOscillator();
+          const wGain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(pitch + 450, audioCtx.currentTime + 0.3);
+          osc.frequency.exponentialRampToValueAtTime(pitch - 200, audioCtx.currentTime + 0.8);
+
+          wGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+          wGain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
+          wGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+
+          osc.connect(wGain);
+          wGain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.8);
+        }, idx * 450 + 200);
       });
     }
 
-    function playRimshot() {
+    // 3. DJ AIR HORN FESTIVAL (Irama Hype Konser: Pee-pe-pe-peeeep!)
+    function playHypeAirhorn() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+      const pattern = [
+        { start: 0.0, len: 0.12 },
+        { start: 0.18, len: 0.12 },
+        { start: 0.36, len: 0.12 },
+        { start: 0.54, len: 0.65 } // Ledakan panjang di akhir
+      ];
+
+      pattern.forEach(p => {
+        const chord = [466.16, 554.37, 698.46, 233.08]; // Akor tebal & sub-bass
+        chord.forEach(freq => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + p.start);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.02, audioCtx.currentTime + p.start + p.len);
+
+          gain.gain.setValueAtTime(0.25, audioCtx.currentTime + p.start);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + p.start + p.len);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + p.start);
+          osc.stop(audioCtx.currentTime + p.start + p.len + 0.05);
+        });
+      });
     }
 
-    // === 2. DETEKSI MIC, PITCH SHIFT & SCORING ANALYZER ===
+    // 4. DRUM ROLL PANGGUNG + CRASH CYMBAL SPEKTAKULER
+    function playStadiumDrumRoll() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      // Snare roll yang semakin cepat & keras
+      const hits = 18;
+      for (let i = 0; i < hits; i++) {
+        setTimeout(() => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.05);
+
+          const vol = 0.1 + (i / hits) * 0.4;
+          gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.05);
+        }, i * (100 - i * 3.5));
+      }
+
+      // Hantaman Simbal (Crash) & Boom Bass di detik 1.3
+      setTimeout(() => {
+        // Crash Cymbal
+        const crashBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2.0, audioCtx.sampleRate);
+        const data = crashBuffer.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+        const crash = audioCtx.createBufferSource();
+        crash.buffer = crashBuffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 4500;
+
+        const cGain = audioCtx.createGain();
+        cGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+        cGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.0);
+
+        crash.connect(filter);
+        filter.connect(cGain);
+        cGain.connect(audioCtx.destination);
+        crash.start();
+
+        // Kick Bass Boom
+        const kick = audioCtx.createOscillator();
+        const kGain = audioCtx.createGain();
+        kick.frequency.setValueAtTime(140, audioCtx.currentTime);
+        kick.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.4);
+        kGain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+        kGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+
+        kick.connect(kGain);
+        kGain.connect(audioCtx.destination);
+        kick.start();
+        kick.stop(audioCtx.currentTime + 0.4);
+      }, 1250);
+    }
+
+    // === 2. MIC, TRANSPOSE, DAN SCORING ENGINE ===
     let micStream, micSource, micGain, delayNode, feedbackGain, micAnalyser;
     let currentKeySemitone = 0;
     let pitchFilter;
-    
-    // Variabel Skor
     let totalSingingSamples = 0;
     let onPitchSamples = 0;
     let isScoringActive = false;
@@ -331,7 +436,6 @@
           micAnalyser = audioCtx.createAnalyser();
           micAnalyser.fftSize = 512;
 
-          // Filter Nada (Key Shifting simulation)
           pitchFilter = audioCtx.createBiquadFilter();
           pitchFilter.type = 'peaking';
           pitchFilter.frequency.value = 1000;
@@ -340,7 +444,6 @@
           delayNode.delayTime.value = 0.25;
           feedbackGain.gain.value = 0.3;
 
-          // Sambungkan Rangkaian
           micSource.connect(pitchFilter);
           pitchFilter.connect(micGain);
           micGain.connect(micAnalyser);
@@ -368,7 +471,6 @@
 
     function updateMicEcho(val) { if (feedbackGain) feedbackGain.gain.value = val; }
 
-    // Naik Turun Nada Kunci (Key Transpose)
     function adjustPitchKey(step) {
       currentKeySemitone += step;
       if (currentKeySemitone > 6) currentKeySemitone = 6;
@@ -377,29 +479,24 @@
       const display = document.getElementById('keyDisplay');
       display.innerText = (currentKeySemitone > 0 ? `Key: +${currentKeySemitone}` : `Key: ${currentKeySemitone}`);
 
-      // Modulasi frekuensi resonansi vokal
       if (pitchFilter) {
         pitchFilter.frequency.value = 1000 * Math.pow(2, currentKeySemitone / 12);
         pitchFilter.gain.value = currentKeySemitone * 2;
       }
     }
 
-    // Mesin Analisis Suara Asli (Real-time Audio Analyzer)
     function mulaiAnalisisSuara() {
       const dataArray = new Uint8Array(micAnalyser.frequencyBinCount);
       function trackAudio() {
         if (!isScoringActive) return;
         micAnalyser.getByteFrequencyData(dataArray);
 
-        // Hitung volume energi vokal
         let sum = 0;
         for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
         let average = sum / dataArray.length;
 
-        // Jika bernyanyi (volume melewati ambang hening)
         if (average > 15) {
           totalSingingSamples++;
-          // Stabilitas nada vokal (harmonik manusia 100Hz - 800Hz)
           if (average > 25 && average < 100) {
             onPitchSamples++;
           }
@@ -409,19 +506,17 @@
       trackAudio();
     }
 
-    // Perhitungan Skor Akhir
     function hitungSkorAkhir() {
       if (totalSingingSamples < 20) {
         alert("Nyalakan mic dan bernyanyilah sedikit lebih lama sebelum cek skor!");
         return;
       }
 
-      // Rumus Skor berbasis stabilitas nada + energi bernyanyi
       const ratio = onPitchSamples / totalSingingSamples;
-      let finalScore = Math.floor(68 + (ratio * 30) + (Math.random() * 3));
+      let finalScore = Math.floor(70 + (ratio * 28) + (Math.random() * 2));
       if (finalScore > 99) finalScore = 99;
 
-      let grade = "B";
+      let grade = "GRADE B";
       let comment = "Cukup bagus! Lebih percaya diri lagi ya!";
 
       if (finalScore >= 92) {
@@ -435,17 +530,15 @@
         comment = "Keren, nada pas! Coba kuasai nafas di bagian reff ya!";
       }
 
-      // Tampilkan Modal Skor
       document.getElementById('finalScoreVal').innerText = finalScore;
       document.getElementById('finalGradeVal').innerText = grade;
       document.getElementById('finalCommentVal').innerText = comment;
       document.getElementById('scoreModal').style.display = 'flex';
 
-      // Bunyikan tepuk tangan panggung otomatis
-      playCrowdCheer();
-      playCheer();
+      // Bunyikan kombinasi gemuruh penonton & siulan terheboh
+      playStadiumRoar();
+      playSuperCheer();
 
-      // Reset hitungan skor untuk lagu selanjutnya
       totalSingingSamples = 0;
       onPitchSamples = 0;
     }
@@ -454,7 +547,7 @@
       document.getElementById('scoreModal').style.display = 'none';
     }
 
-    // === 3. PLAYER SETUP & OTOMATIS HITUNG SKOR SAAT LAGU BERAKHIR ===
+    // === 3. PLAYER SETUP ===
     let player, syncInterval, syncedLyrics = [], lyricOffset = 0;
 
     function onYouTubeIframeAPIReady() {
@@ -475,7 +568,6 @@
         if (syncInterval) clearInterval(syncInterval);
         syncInterval = setInterval(updateLyricsSync, 250);
       } else if (event.data === YT.PlayerState.ENDED) {
-        // Otomatis kalkulasi skor saat lagu selesai diputar!
         clearInterval(syncInterval);
         if (totalSingingSamples > 20) hitungSkorAkhir();
       } else {
@@ -483,7 +575,7 @@
       }
     }
 
-    // === 4. MESIN PENCARI DALAM WEB (IN-APP SEARCH) ===
+    // === 4. MESIN PENCARI DALAM WEB ===
     const MIRROR_INSTANCES = [
       'https://inv.nadeko.net',
       'https://invidious.flokinet.to',
@@ -517,7 +609,7 @@
             if (videos.length > 0) break;
           }
         } catch (e) {
-          console.warn(`Instance ${instance} sibuk, beralih mirror...`);
+          console.warn(`Mirror sibuk, mencoba yang lain...`);
         }
       }
 
@@ -560,7 +652,7 @@
       fetchLyrics(songTitle);
     }
 
-    // === 5. FETCH & SYNC LIRIK ===
+    // === 5. FETCH & SINKRONISASI LIRIK ===
     async function fetchLyrics(songTitle) {
       const container = document.getElementById('lyricsContainer');
       container.innerHTML = '<p style="color: var(--neon-cyan)">Mengambil lirik sinkron...</p>';
@@ -579,10 +671,10 @@
         } else if (match && match.plainLyrics) {
           container.innerHTML = match.plainLyrics.split('\n').map(l => `<div class="lyrics-line">${l}</div>`).join('');
         } else {
-          container.innerHTML = '<p style="color:#ff007f;">Lirik otomatis tidak ditemukan. Silakan ikuti video!</p>';
+          container.innerHTML = '<p style="color:#ff007f;">Lirik otomatis tidak ditemukan. Silakan bernyanyi ikuti video!</p>';
         }
       } catch (err) {
-        container.innerHTML = '<p style="color:#ff007f;">Gagal memuat lirik (cek internet).</p>';
+        container.innerHTML = '<p style="color:#ff007f;">Gagal memuat lirik (cek koneksi).</p>';
       }
     }
 
