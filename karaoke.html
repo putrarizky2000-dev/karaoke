@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Studio Karaoke Neon Pro - Stadium Edition</title>
+  <title>Studio Karaoke Neon Pro - Super Loud Stadium</title>
   <style>
     :root {
       --bg: #0b0c10;
@@ -11,6 +11,7 @@
       --neon-cyan: #66fcf1;
       --neon-pink: #ff007f;
       --neon-gold: #ffd700;
+      --neon-green: #39ff14;
       --text: #ffffff;
       --text-muted: #c5c6c7;
     }
@@ -19,7 +20,7 @@
     body { background: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
     
     header { text-align: center; margin-bottom: 20px; }
-    header h1 { font-size: 2.2rem; color: var(--neon-cyan); text-shadow: 0 0 12px rgba(102, 252, 241, 0.6); }
+    header h1 { font-size: 2.2rem; color: var(--neon-cyan); text-shadow: 0 0 14px rgba(102, 252, 241, 0.7); }
     header p { color: var(--text-muted); font-size: 0.95rem; }
 
     .search-panel {
@@ -92,20 +93,27 @@
     }
 
     .bottom-panel {
-      display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px;
+      display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 20px;
       width: 100%; max-width: 1100px; margin-top: 20px;
     }
     .card { background: var(--card-bg); padding: 18px; border-radius: 12px; border: 1px solid #333; }
-    .card h4 { margin-bottom: 12px; color: var(--text-muted); font-size: 0.95rem; text-transform: uppercase; }
+    .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .card h4 { color: var(--text-muted); font-size: 0.95rem; text-transform: uppercase; }
 
-    /* Soundboard Buttons */
-    .soundboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    /* Soundboard Grid */
+    .soundboard-grid { display: grid; grid-template-columns: repeat(4, 1fr) 1.2fr; gap: 8px; }
     .btn-sound {
-      background: #2b323c; color: #fff; padding: 15px 5px; font-size: 0.85rem;
-      border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px;
+      background: #2b323c; color: #fff; padding: 12px 5px; font-size: 0.8rem;
+      border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px;
     }
     .btn-sound:hover { background: var(--neon-pink); transform: scale(1.05); }
-    .btn-sound span { font-size: 1.6rem; }
+    .btn-sound span { font-size: 1.4rem; }
+    
+    .btn-mega {
+      background: linear-gradient(135deg, #ff007f, #ffd700); color: #000;
+      font-weight: 900; animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
 
     .mic-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .key-control { display: flex; align-items: center; gap: 8px; background: #121820; padding: 6px 12px; border-radius: 8px; border: 1px solid #45a29e; }
@@ -119,15 +127,16 @@
     .score-card {
       background: linear-gradient(135deg, #1f2833, #0b0c10); border: 2px solid var(--neon-gold);
       border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%;
-      box-shadow: 0 0 35px rgba(255, 215, 0, 0.5); animation: popUp 0.4s ease;
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); animation: popUp 0.4s ease;
     }
     @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .score-number { font-size: 5rem; font-weight: 900; color: var(--neon-gold); text-shadow: 0 0 20px rgba(255,215,0,0.8); margin: 10px 0; }
+    .score-number { font-size: 5.5rem; font-weight: 900; color: var(--neon-gold); text-shadow: 0 0 25px rgba(255,215,0,0.8); margin: 10px 0; }
     .score-grade { font-size: 1.8rem; font-weight: bold; color: var(--neon-cyan); }
     .score-comment { margin: 15px 0; color: var(--text-muted); font-size: 1rem; }
 
-    @media(max-width: 768px) {
+    @media(max-width: 900px) {
       .stage-container, .bottom-panel { grid-template-columns: 1fr; }
+      .soundboard-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -135,7 +144,7 @@
 
   <header>
     <h1>🎤 KARAOKE LIVE STUDIO PRO</h1>
-    <p>Edisi Konser Stadion: Suara Penonton & Panggung Super Heboh!</p>
+    <p>Edisi Konser Stadion: Sorakan Menggelegar, Sangat Keras & Bertenaga!</p>
   </header>
 
   <!-- Panel Pencarian -->
@@ -145,7 +154,6 @@
       <button class="btn-primary" id="searchBtn" onclick="cariVideoKaraoke()">🔍 Cari Lagu</button>
     </div>
 
-    <!-- Pilihan Cepat -->
     <div class="quick-tags">
       <span>Rekomendasi Karaoke:</span>
       <button class="tag-btn" onclick="pilihLaguLangsung('k4V3Mo61fJM', 'Adele Someone Like You')">Adele - Someone Like You</button>
@@ -180,14 +188,23 @@
 
   <!-- Panel Bawah -->
   <div class="bottom-panel">
-    <!-- Soundboard Super Heboh -->
+    <!-- Soundboard Super Keras -->
     <div class="card">
-      <h4>🔥 Efek Sorakan Panggung Spektakuler</h4>
+      <div class="card-header-flex">
+        <h4>🔥 Efek Sorakan Menggelegar (Super Loud)</h4>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 0.75rem; color: var(--neon-green); font-weight: bold;" id="boostLabel">VOL BOOST: 250%</span>
+          <input type="range" min="1" max="4" step="0.2" value="2.5" oninput="updateFxBoost(this.value)" style="width: 80px;">
+        </div>
+      </div>
+
       <div class="soundboard-grid">
         <button class="btn-sound" onclick="playSuperCheer()"><span>👏</span>Tepuk Gemuruh</button>
         <button class="btn-sound" onclick="playStadiumRoar()"><span>🏟️</span>Sorak Stadion</button>
         <button class="btn-sound" onclick="playHypeAirhorn()"><span>🚨</span>DJ Air Horn</button>
         <button class="btn-sound" onclick="playStadiumDrumRoll()"><span>🥁</span>Roll & Cymbal</button>
+        <!-- Tombol Kombo Pesta Total -->
+        <button class="btn-sound btn-mega" onclick="playChaosParty()"><span>💥</span>PESTA TOTAL!</button>
       </div>
     </div>
 
@@ -197,7 +214,7 @@
       <div class="mic-controls">
         <button id="micBtn" class="btn-primary" onclick="toggleMicrophone()" style="background: #333; color: #fff;">Nyalakan Mic</button>
         
-        <div class="key-control" title="Geser nada register vokal">
+        <div class="key-control" title="Geser nada vokal">
           <button class="key-btn" onclick="adjustPitchKey(-1)">♭ -1</button>
           <span id="keyDisplay" style="font-weight: bold; color: var(--neon-cyan);">Key: 0</span>
           <button class="key-btn" onclick="adjustPitchKey(1)">♯ +1</button>
@@ -227,56 +244,76 @@
   <script src="https://www.youtube.com/iframe_api"></script>
 
   <script>
-    // === 1. AUDIO SYNTHESIZER ENGINE: SUPER HEBOH ===
+    // === 1. AUDIO SYNTHESIZER ENGINE: STUDIO COMPRESSOR & MEGA BOOST ===
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    // 1. TEPUK TANGAN GEMURUH (Ratusan tepukan beruntun / Standing Ovation)
+    // DYNAMICS COMPRESSOR & MASTER FX GAIN (Mencegah suara pecah walau digeber keras)
+    const masterCompressor = audioCtx.createDynamicsCompressor();
+    masterCompressor.threshold.setValueAtTime(-14, audioCtx.currentTime);
+    masterCompressor.knee.setValueAtTime(30, audioCtx.currentTime);
+    masterCompressor.ratio.setValueAtTime(12, audioCtx.currentTime);
+    masterCompressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
+    masterCompressor.release.setValueAtTime(0.25, audioCtx.currentTime);
+
+    const fxMasterGain = audioCtx.createGain();
+    fxMasterGain.gain.setValueAtTime(2.5, audioCtx.currentTime); // Default 250% Volume!
+
+    // Sambungkan FX Master -> Compressor -> Speaker Utama
+    fxMasterGain.connect(masterCompressor);
+    masterCompressor.connect(audioCtx.destination);
+
+    function updateFxBoost(val) {
+      fxMasterGain.gain.setValueAtTime(parseFloat(val), audioCtx.currentTime);
+      document.getElementById('boostLabel').innerText = `VOL BOOST: ${Math.round(val * 100)}%`;
+    }
+
+    // A. TEPUK TANGAN GEMURUH (Standing ovation ribuan penonton)
     function playSuperCheer() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const count = 75; // Kerapatan tinggi
+      const count = 120; // Sangat padat
       for (let i = 0; i < count; i++) {
         setTimeout(() => {
-          const bufferSize = audioCtx.sampleRate * 0.08;
+          const bufferSize = audioCtx.sampleRate * 0.09;
           const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
           const data = buffer.getChannelData(0);
-          for (let j = 0; j < data.length; j++) data[j] = (Math.random() * 2 - 1) * (1 - j / bufferSize);
+          for (let j = 0; j < data.length; j++) data[j] = (Math.random() * 2 - 1) * Math.exp(-j / (bufferSize * 0.3));
 
           const noise = audioCtx.createBufferSource();
           noise.buffer = buffer;
 
           const filter = audioCtx.createBiquadFilter();
           filter.type = 'bandpass';
-          filter.frequency.value = 800 + Math.random() * 1200;
-          filter.Q.value = 1.8;
+          filter.frequency.value = 750 + Math.random() * 1400;
+          filter.Q.value = 1.4;
 
           const gain = audioCtx.createGain();
-          const amp = 0.25 + Math.random() * 0.2;
-          gain.gain.setValueAtTime(amp, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.6 + Math.random() * 0.4, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.09);
 
           noise.connect(filter);
           filter.connect(gain);
-          gain.connect(audioCtx.destination);
+          gain.connect(fxMasterGain);
           noise.start();
-        }, i * (Math.random() * 25 + 10));
+        }, i * (Math.random() * 18 + 5));
       }
     }
 
-    // 2. SORAKAN STADION + SIULAN FANS (Stadium Crowd Roar with Concert Whistles)
+    // B. SORAKAN STADION + VOKAL MANUSIA ("WOOOOO!") + 4 SIULAN
     function playStadiumRoar() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const dur = 4.0;
+      const dur = 4.5;
       const bufferSize = audioCtx.sampleRate * dur;
       const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
       const data = buffer.getChannelData(0);
-      let lastOut = 0.0;
+      let b0 = 0, b1 = 0, b2 = 0;
 
-      // Pink noise untuk gemuruh penonton yang dalam
+      // Pink & Brown Noise untuk gemuruh penonton yang dalam
       for (let i = 0; i < bufferSize; i++) {
         const white = Math.random() * 2 - 1;
-        data[i] = (lastOut + (0.02 * white)) / 1.02;
-        lastOut = data[i];
-        data[i] *= 3.5;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        data[i] = (b0 + b1 + b2) * 1.5;
       }
 
       const noise = audioCtx.createBufferSource();
@@ -284,103 +321,132 @@
 
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(600, audioCtx.currentTime);
-      filter.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 1.2);
-      filter.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + dur);
-      filter.Q.value = 1.0;
+      filter.frequency.setValueAtTime(500, audioCtx.currentTime);
+      filter.frequency.linearRampToValueAtTime(1400, audioCtx.currentTime + 1.2);
+      filter.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + dur);
+      filter.Q.value = 0.9;
 
       const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.8);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(1.3, audioCtx.currentTime + 0.6);
       gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
 
       noise.connect(filter);
       filter.connect(gain);
-      gain.connect(audioCtx.destination);
+      gain.connect(fxMasterGain);
       noise.start();
 
-      // Tambahkan 3 Siulan Melengking Khas Konser (Stadium Whistles)
-      const whistlePitches = [1900, 2400, 2100];
+      // Formant Teriakan Penonton ("Woooooo!")
+      const crowdVowels = [420, 650, 920];
+      crowdVowels.forEach(f => {
+        const osc = audioCtx.createOscillator();
+        const vGain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(f * 1.15, audioCtx.currentTime + 1.5);
+        osc.frequency.linearRampToValueAtTime(f * 0.9, audioCtx.currentTime + 4.0);
+
+        vGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+        vGain.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 0.8);
+        vGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4.0);
+
+        osc.connect(vGain);
+        vGain.connect(fxMasterGain);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 4.0);
+      });
+
+      // 4 Siulan Tajam Melengking (Stadium Whistles)
+      const whistlePitches = [1800, 2400, 2100, 2600];
       whistlePitches.forEach((pitch, idx) => {
         setTimeout(() => {
           const osc = audioCtx.createOscillator();
           const wGain = audioCtx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(pitch + 450, audioCtx.currentTime + 0.3);
-          osc.frequency.exponentialRampToValueAtTime(pitch - 200, audioCtx.currentTime + 0.8);
+          osc.frequency.exponentialRampToValueAtTime(pitch + 600, audioCtx.currentTime + 0.25);
+          osc.frequency.exponentialRampToValueAtTime(pitch - 250, audioCtx.currentTime + 0.9);
 
           wGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-          wGain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.1);
-          wGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+          wGain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.1);
+          wGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.9);
 
           osc.connect(wGain);
-          wGain.connect(audioCtx.destination);
+          wGain.connect(fxMasterGain);
           osc.start();
-          osc.stop(audioCtx.currentTime + 0.8);
-        }, idx * 450 + 200);
+          osc.stop(audioCtx.currentTime + 0.9);
+        }, idx * 400 + 150);
       });
     }
 
-    // 3. DJ AIR HORN FESTIVAL (Irama Hype Konser: Pee-pe-pe-peeeep!)
+    // C. DJ AIR HORN FESTIVAL + SUB-BASS BOMB
     function playHypeAirhorn() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
       const pattern = [
-        { start: 0.0, len: 0.12 },
-        { start: 0.18, len: 0.12 },
-        { start: 0.36, len: 0.12 },
-        { start: 0.54, len: 0.65 } // Ledakan panjang di akhir
+        { start: 0.0, len: 0.14 },
+        { start: 0.18, len: 0.14 },
+        { start: 0.36, len: 0.14 },
+        { start: 0.54, len: 0.85 } // Paling panjang & nendang
       ];
 
       pattern.forEach(p => {
-        const chord = [466.16, 554.37, 698.46, 233.08]; // Akor tebal & sub-bass
+        const chord = [466.16, 554.37, 698.46, 233.08]; // Akor tebal
         chord.forEach(freq => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(freq, audioCtx.currentTime + p.start);
-          osc.frequency.exponentialRampToValueAtTime(freq * 1.02, audioCtx.currentTime + p.start + p.len);
+          osc.frequency.exponentialRampToValueAtTime(freq * 1.03, audioCtx.currentTime + p.start + p.len);
 
-          gain.gain.setValueAtTime(0.25, audioCtx.currentTime + p.start);
+          gain.gain.setValueAtTime(0.45, audioCtx.currentTime + p.start);
           gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + p.start + p.len);
 
           osc.connect(gain);
-          gain.connect(audioCtx.destination);
+          gain.connect(fxMasterGain);
           osc.start(audioCtx.currentTime + p.start);
           osc.stop(audioCtx.currentTime + p.start + p.len + 0.05);
         });
+
+        // Hentakan Sub-Bass 808
+        const sub = audioCtx.createOscillator();
+        const subGain = audioCtx.createGain();
+        sub.frequency.setValueAtTime(130, audioCtx.currentTime + p.start);
+        sub.frequency.exponentialRampToValueAtTime(45, audioCtx.currentTime + p.start + p.len);
+        subGain.gain.setValueAtTime(0.6, audioCtx.currentTime + p.start);
+        subGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + p.start + p.len);
+        sub.connect(subGain);
+        subGain.connect(fxMasterGain);
+        sub.start(audioCtx.currentTime + p.start);
+        sub.stop(audioCtx.currentTime + p.start + p.len + 0.05);
       });
     }
 
-    // 4. DRUM ROLL PANGGUNG + CRASH CYMBAL SPEKTAKULER
+    // D. DRUM ROLL PANGGUNG + SIMBAL SPEKTAKULER
     function playStadiumDrumRoll() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      
-      // Snare roll yang semakin cepat & keras
-      const hits = 18;
+      const hits = 22;
       for (let i = 0; i < hits; i++) {
         setTimeout(() => {
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(180, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.05);
+          osc.frequency.setValueAtTime(190, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(55, audioCtx.currentTime + 0.06);
 
-          const vol = 0.1 + (i / hits) * 0.4;
+          const vol = 0.2 + (i / hits) * 0.7;
           gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
 
           osc.connect(gain);
-          gain.connect(audioCtx.destination);
+          gain.connect(fxMasterGain);
           osc.start();
-          osc.stop(audioCtx.currentTime + 0.05);
-        }, i * (100 - i * 3.5));
+          osc.stop(audioCtx.currentTime + 0.06);
+        }, i * (90 - i * 3.2));
       }
 
-      // Hantaman Simbal (Crash) & Boom Bass di detik 1.3
+      // Hantaman Simbal Besar & Sub-Kick
       setTimeout(() => {
-        // Crash Cymbal
-        const crashBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2.0, audioCtx.sampleRate);
+        const crashBuffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 2.5, audioCtx.sampleRate);
         const data = crashBuffer.getChannelData(0);
         for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
         const crash = audioCtx.createBufferSource();
@@ -388,33 +454,40 @@
 
         const filter = audioCtx.createBiquadFilter();
         filter.type = 'highpass';
-        filter.frequency.value = 4500;
+        filter.frequency.value = 4000;
 
         const cGain = audioCtx.createGain();
-        cGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-        cGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.0);
+        cGain.gain.setValueAtTime(0.9, audioCtx.currentTime);
+        cGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.5);
 
         crash.connect(filter);
         filter.connect(cGain);
-        cGain.connect(audioCtx.destination);
+        cGain.connect(fxMasterGain);
         crash.start();
 
-        // Kick Bass Boom
         const kick = audioCtx.createOscillator();
         const kGain = audioCtx.createGain();
-        kick.frequency.setValueAtTime(140, audioCtx.currentTime);
-        kick.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.4);
-        kGain.gain.setValueAtTime(0.8, audioCtx.currentTime);
-        kGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        kick.frequency.setValueAtTime(160, audioCtx.currentTime);
+        kick.frequency.exponentialRampToValueAtTime(35, audioCtx.currentTime + 0.5);
+        kGain.gain.setValueAtTime(1.0, audioCtx.currentTime);
+        kGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
 
         kick.connect(kGain);
-        kGain.connect(audioCtx.destination);
+        kGain.connect(fxMasterGain);
         kick.start();
-        kick.stop(audioCtx.currentTime + 0.4);
-      }, 1250);
+        kick.stop(audioCtx.currentTime + 0.5);
+      }, 1200);
     }
 
-    // === 2. MIC, TRANSPOSE, DAN SCORING ENGINE ===
+    // E. KOMBO PESTA TOTAL (SEMUA SUARA DIBUNYIKAN BERSAMAAN!)
+    function playChaosParty() {
+      playHypeAirhorn();
+      setTimeout(playStadiumRoar, 400);
+      setTimeout(playSuperCheer, 700);
+      setTimeout(playStadiumDrumRoll, 1200);
+    }
+
+    // === 2. MIC, TRANSPOSE & PENILAIAN ===
     let micStream, micSource, micGain, delayNode, feedbackGain, micAnalyser;
     let currentKeySemitone = 0;
     let pitchFilter;
@@ -535,9 +608,8 @@
       document.getElementById('finalCommentVal').innerText = comment;
       document.getElementById('scoreModal').style.display = 'flex';
 
-      // Bunyikan kombinasi gemuruh penonton & siulan terheboh
-      playStadiumRoar();
-      playSuperCheer();
+      // Otomatis Pesta Total saat nilai keluar!
+      playChaosParty();
 
       totalSingingSamples = 0;
       onPitchSamples = 0;
@@ -575,7 +647,7 @@
       }
     }
 
-    // === 4. MESIN PENCARI DALAM WEB ===
+    // === 4. IN-APP YOUTUBE SEARCH ===
     const MIRROR_INSTANCES = [
       'https://inv.nadeko.net',
       'https://invidious.flokinet.to',
@@ -609,7 +681,7 @@
             if (videos.length > 0) break;
           }
         } catch (e) {
-          console.warn(`Mirror sibuk, mencoba yang lain...`);
+          console.warn(`Mirror sibuk, beralih mirror...`);
         }
       }
 
@@ -671,7 +743,7 @@
         } else if (match && match.plainLyrics) {
           container.innerHTML = match.plainLyrics.split('\n').map(l => `<div class="lyrics-line">${l}</div>`).join('');
         } else {
-          container.innerHTML = '<p style="color:#ff007f;">Lirik otomatis tidak ditemukan. Silakan bernyanyi ikuti video!</p>';
+          container.innerHTML = '<p style="color:#ff007f;">Lirik otomatis tidak ditemukan. Silakan ikuti video!</p>';
         }
       } catch (err) {
         container.innerHTML = '<p style="color:#ff007f;">Gagal memuat lirik (cek koneksi).</p>';
