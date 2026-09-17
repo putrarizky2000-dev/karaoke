@@ -22,6 +22,7 @@
     body {
       background: var(--bg); color: var(--text); padding: clamp(10px, 2vw, 25px);
       display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+      overflow-x: hidden;
     }
     
     header {
@@ -145,11 +146,14 @@
     .lyrics-hint { font-size: 0.8rem; color: var(--neon-cyan); margin-bottom: 8px; text-align: center; }
     
     .lyrics-scroll {
-      flex: 1; overflow-y: auto; scroll-behavior: smooth; text-align: center;
-      display: flex; flex-direction: column; gap: 14px; padding: 20px 0;
+      flex: 1; overflow-y: auto; text-align: center;
+      display: flex; flex-direction: column; gap: 14px; padding: 30px 0;
+      position: relative;
+      overscroll-behavior: contain; /* Mengunci scroll agar tidak mengguncang layar utama */
     }
     .lyrics-line {
-      font-size: clamp(1rem, 1.8vw, 1.2rem); color: #777; transition: all 0.3s; padding: 6px 10px; border-radius: 6px;
+      font-size: clamp(1rem, 1.8vw, 1.2rem); color: #777; transition: color 0.25s ease, transform 0.25s ease, background 0.25s ease;
+      padding: 8px 12px; border-radius: 6px;
       cursor: pointer; user-select: none; line-height: 1.4;
     }
     .lyrics-line:hover { color: #ccc; background: rgba(255,255,255,0.05); }
@@ -316,7 +320,7 @@
     </div>
   </div>
 
-  <!-- Modal Input Lirik Sendiri (Opsional untuk Lagu Langka) -->
+  <!-- Modal Input Lirik Sendiri -->
   <div class="modal-backdrop" id="manualLyricsModal">
     <div class="modal-card" style="max-width: 520px; text-align: left;">
       <h3 style="color: var(--neon-cyan); margin-bottom: 8px;">📝 Tempel / Masukkan Lirik Lagu</h3>
@@ -377,7 +381,7 @@
       } catch (e) {}
     }
 
-    // === 2. PLAYER SISTEM & HILANGKAN HASIL SEARCH SAAT PLAY ===
+    // === 2. PLAYER SISTEM & SINKRONISASI LIRIK ANTI-GUNCANG ===
     let currentVideoId = '';
     let lyricOffset = 0;
     let syncedLyrics = [];
@@ -385,6 +389,23 @@
     let songStartTime = 0;
     let exactVideoCurrentTime = -1;
     let isScoredThisSong = false;
+    let currentActiveLyricIndex = -1;
+    let isUserScrollingLyrics = false;
+    let userScrollReleaseTimer = null;
+
+    // Pasang sensor scroll pengguna pada kotak lirik
+    const lyricsBoxElem = document.getElementById('lyricsContainer');
+    const handleUserScrollAction = () => {
+      isUserScrollingLyrics = true;
+      clearTimeout(userScrollReleaseTimer);
+      // Beri jeda 3.5 detik agar pengguna leluasa melihat lirik tanpa ditarik paksa
+      userScrollReleaseTimer = setTimeout(() => {
+        isUserScrollingLyrics = false;
+      }, 3500);
+    };
+
+    lyricsBoxElem.addEventListener('wheel', handleUserScrollAction, { passive: true });
+    lyricsBoxElem.addEventListener('touchmove', handleUserScrollAction, { passive: true });
 
     function putarLaguKaraoke(videoId, title) {
       if (!videoId) return;
@@ -394,10 +415,13 @@
       totalSingingSamples = 0;
       onPitchSamples = 0;
       exactVideoCurrentTime = -1;
+      currentActiveLyricIndex = -1;
+      isUserScrollingLyrics = false;
+
       document.getElementById('offsetVal').innerText = `0.0s`;
       document.getElementById('standbyScreen').style.display = 'none';
 
-      // 1. KETIKA LAGU DIMULAI: HILANGKAN HASIL PENCARIAN
+      // Hilangkan hasil pencarian
       const searchBox = document.getElementById('searchResults');
       if (searchBox) {
         searchBox.style.display = 'none';
@@ -405,7 +429,7 @@
       }
       document.getElementById('suggestList').style.display = 'none';
 
-      // 2. Putar Video di Panggung
+      // Putar video di iframe
       const container = document.getElementById('playerContainer');
       container.innerHTML = `
         <iframe id="karaokeIframe"
@@ -419,11 +443,10 @@
       if (lyricTimer) clearInterval(lyricTimer);
       lyricTimer = setInterval(updateLyricsSync, 200);
 
-      // Ambil lirik cerdas multi-tahap
       ambilLirikMultiTahap(title);
     }
 
-    // Mendengarkan respon waktu dari YouTube iframe
+    // Waktu dari iframe
     window.addEventListener('message', (e) => {
       try {
         const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
@@ -433,7 +456,7 @@
       } catch (err) {}
     });
 
-    // === 3. AUTOCOMPLETE PENCARIAN (GOOGLE JSONP) ===
+    // === 3. AUTOCOMPLETE (GOOGLE JSONP) ===
     function fetchGoogleSuggest(val) {
       const q = val.trim();
       const list = document.getElementById('suggestList');
@@ -475,7 +498,7 @@
       }
     });
 
-    // === 4. PENCARIAN INSTRUMEN (TETAP ADA UNTUK DIPILIH) ===
+    // === 4. PENCARIAN INSTRUMEN ===
     const INVIDIOUS_SERVERS = [
       'https://invidious.nerdvpn.de',
       'https://invidious.tiekoetter.com',
@@ -495,7 +518,6 @@
 
       masukFullscreen();
 
-      // Jika input adalah link YouTube langsung
       const directId = extractVideoID(input);
       if (directId) {
         putarLaguKaraoke(directId, input);
@@ -511,7 +533,6 @@
 
       let foundVideos = [];
 
-      // A. Gunakan Google API Key jika ada
       const apiKey = localStorage.getItem('user_yt_api_key');
       if (apiKey) {
         try {
@@ -527,7 +548,6 @@
         } catch(e) {}
       }
 
-      // B. Multi-Server Cluster Search
       if (foundVideos.length === 0) {
         const queryTerm = input.toLowerCase().includes('karaoke') ? input : `${input} karaoke`;
         for (const base of INVIDIOUS_SERVERS) {
@@ -553,7 +573,6 @@
         }
       }
 
-      // C. Cadangan Proxy
       if (foundVideos.length === 0) {
         try {
           const target = encodeURIComponent(`https://www.youtube.com/results?search_query=${encodeURIComponent(input + ' karaoke')}`);
@@ -582,7 +601,6 @@
       searchBtn.innerText = "🔍 Cari Instrumen";
       searchBtn.disabled = false;
 
-      // HASIL TETAP MUNCUL UNTUK DIPILIH
       if (foundVideos.length > 0) {
         resultsContainer.innerHTML = `
           <div class="search-title-bar">
@@ -613,16 +631,16 @@
       }
     }
 
-    // === 5. MESIN LIRIK SINKRON MULTI-TAHAP (PASTI MUNCUL) ===
+    // === 5. MESIN LIRIK SINKRON & SCROLL STABIL ===
     async function ambilLirikMultiTahap(videoTitle) {
       const container = document.getElementById('lyricsContainer');
       container.innerHTML = '<p style="color: var(--neon-cyan)">⏳ Mengambil lirik sinkron...</p>';
       syncedLyrics = [];
+      currentActiveLyricIndex = -1;
 
       const userTyped = document.getElementById('searchInput').value.trim()
         .replace(/karaoke|instrumental|minus one|tanpa vokal/gi, '').trim();
 
-      // Bersihkan teks teknis dari judul YouTube
       const cleanVideoTitle = videoTitle
         .replace(/\(.*?\)|\[.*?\]/g, ' ')
         .replace(/karaoke|instrumental|minus\s*one|tanpa\s*vokal|no\s*vocal|official|music\s*video|lirik|lyrics|audio|video|hd|hq|clean|cover|nada\s*cowok|nada\s*cewek|female\s*key|male\s*key/gi, ' ')
@@ -630,16 +648,15 @@
         .replace(/\s+/g, ' ')
         .trim();
 
-      // Daftar kata kunci yang akan dicari secara berurutan
       const searchCandidates = [
         cleanVideoTitle,
         userTyped,
-        cleanVideoTitle.split(' ').slice(0, 4).join(' ') // 4 kata pertama (biasanya Artis + Judul)
+        cleanVideoTitle.split(' ').slice(0, 4).join(' ')
       ].filter(q => q && q.length > 2);
 
       let lyricFound = false;
 
-      // TAHAP 1: Cari di LRCLIB (Database Lirik Sinkron Terbesar)
+      // LRCLIB
       for (const query of searchCandidates) {
         try {
           const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(query)}`);
@@ -663,7 +680,7 @@
         } catch (e) {}
       }
 
-      // TAHAP 2: Jika LRCLIB kosong, coba Lyrics.ovh (Database Lirik Sekunder)
+      // LYRICS.OVH
       if (!lyricFound && userTyped.includes(' ')) {
         const parts = userTyped.split(' ');
         const artist = parts[0];
@@ -681,7 +698,6 @@
         } catch (e) {}
       }
 
-      // TAHAP 3: Jika Masih Kosong
       if (!lyricFound) {
         container.innerHTML = `
           <div style="padding: 20px 10px; color: #aaa;">
@@ -695,7 +711,6 @@
       }
     }
 
-    // Parsing file format .LRC (Standar Karaoke Lirik Dunia)
     function parseLRC(lrcText) {
       syncedLyrics = [];
       const lines = lrcText.split('\n');
@@ -711,12 +726,11 @@
       }
     }
 
-    // Mengubah lirik teks polos menjadi lirik yang bisa bergulir otomatis
     function konversiPlainLyricsKeSync(plainText) {
       syncedLyrics = [];
       const lines = plainText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      let currentTime = 12.0; // Intro musik rata-rata ~12 detik
-      const timePerLine = 4.2; // Jeda rata-rata antar baris ~4 detik
+      let currentTime = 12.0;
+      const timePerLine = 4.2;
 
       for (let text of lines) {
         syncedLyrics.push({ time: currentTime, text: text });
@@ -736,6 +750,7 @@
       const currentPlayTime = getCurrentPlaybackSeconds();
       lyricOffset = currentPlayTime - targetTime;
       document.getElementById('offsetVal').innerText = `${lyricOffset > 0 ? '+' : ''}${lyricOffset.toFixed(1)}s`;
+      currentActiveLyricIndex = -1; // Reset agar langsung update posisi baris
       updateLyricsSync();
     }
 
@@ -744,10 +759,10 @@
       return (Date.now() - songStartTime) / 1000;
     }
 
+    // FUNGSI SINKRONISASI LIRIK TERBARU: HANYA SCROLL KOTAK LIRIK SECARA HALUS & TANPA GUNCANGAN
     function updateLyricsSync() {
       if (syncedLyrics.length === 0) return;
 
-      // Minta waktu presisi ke iframe video
       const iframe = document.getElementById('karaokeIframe');
       if (iframe && iframe.contentWindow) {
         iframe.contentWindow.postMessage('{"event":"command","func":"getCurrentTime","args":""}', '*');
@@ -762,24 +777,45 @@
         else break;
       }
 
-      if (activeIndex !== -1) {
+      // Kunci perbaikan: HANYA jalankan animasi jika baris lirik benar-benar BERUBAH
+      if (activeIndex !== currentActiveLyricIndex) {
+        currentActiveLyricIndex = activeIndex;
+
         document.querySelectorAll('.lyrics-line').forEach((el, i) => {
           if (i === activeIndex) {
             el.classList.add('active');
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
           } else {
             el.classList.remove('active');
           }
         });
+
+        // Hanya geser kontainer lirik jika pengguna tidak sedang scroll manual
+        if (activeIndex !== -1 && !isUserScrollingLyrics) {
+          const activeEl = document.getElementById(`lyric-${activeIndex}`);
+          const container = document.getElementById('lyricsContainer');
+
+          if (activeEl && container) {
+            const elRect = activeEl.getBoundingClientRect();
+            const contRect = container.getBoundingClientRect();
+            
+            // Hitung posisi tepat di tengah kotak lirik
+            const targetScrollTop = container.scrollTop + (elRect.top - contRect.top) - (container.clientHeight / 2) + (elRect.height / 2);
+            
+            container.scrollTo({
+              top: Math.max(0, targetScrollTop),
+              behavior: 'smooth'
+            });
+          }
+        }
       }
     }
 
     function adjustOffset(delta) {
       lyricOffset += delta;
       document.getElementById('offsetVal').innerText = `${lyricOffset > 0 ? '+' : ''}${lyricOffset.toFixed(1)}s`;
+      currentActiveLyricIndex = -1;
     }
 
-    // Modal Input Lirik Manual
     function bukaModalManualLirik() {
       document.getElementById('manualLyricsModal').style.display = 'flex';
     }
@@ -963,7 +999,6 @@
       return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
 
-    // Auto Fullscreen pada klik pertama / pembukaan
     window.addEventListener('DOMContentLoaded', () => masukFullscreen());
     ['click', 'keydown', 'touchstart'].forEach(evt => {
       document.addEventListener(evt, () => masukFullscreen(), { once: true });
