@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Studio Karaoke Neon Pro - Fix Player</title>
+  <title>Studio Karaoke Neon Pro - Pure Karaoke Edition</title>
   <style>
     :root {
       --bg: #0b0c10;
@@ -42,7 +42,7 @@
     /* Search Bar */
     .search-panel {
       width: 100%; max-width: 1200px; margin-bottom: 15px;
-      background: var(--card-bg); padding: clamp(10px, 2vw, 18px); border-radius: 12px;
+      background: var(--card-bg); padding: clamp(12px, 2vw, 18px); border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
     .search-form { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -60,7 +60,7 @@
     .btn-score { background: var(--neon-gold); color: #0b0c10; }
     .btn-score:hover { background: #e6c200; }
 
-    /* Verified Preset Tags */
+    /* Quick Preset Tags */
     .quick-tags { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
     .quick-tags span { font-size: 0.85rem; color: var(--neon-gold); font-weight: bold; }
     .tag-btn {
@@ -82,7 +82,7 @@
     .result-item img { width: 85px; height: 55px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
     .result-item-info { font-size: 0.8rem; overflow: hidden; display: flex; flex-direction: column; gap: 3px; }
     .result-item-info strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #fff; line-height: 1.2; }
-    .result-item-info span { color: var(--neon-cyan); font-size: 0.75rem; }
+    .result-item-info span { color: var(--neon-green); font-size: 0.75rem; font-weight: bold; }
 
     /* Stage */
     .stage-container {
@@ -93,15 +93,15 @@
       background: #000; border-radius: 12px; overflow: hidden;
       aspect-ratio: 16/9; position: relative; border: 1px solid #333; width: 100%;
     }
-    #mainIframe { width: 100%; height: 100%; border: none; }
+    #playerContainer { width: 100%; height: 100%; }
 
-    /* Notice jika video diblokir */
-    .embed-warning {
-      position: absolute; bottom: 8px; left: 8px; right: 8px;
-      background: rgba(0,0,0,0.85); color: #ccc; font-size: 0.75rem; padding: 6px 10px;
-      border-radius: 6px; border: 1px solid #444; display: flex; justify-content: space-between; align-items: center;
+    /* Notifikasi Otomatis Skip Video Terkunci */
+    #fallbackToast {
+      display: none; position: absolute; top: 12px; left: 12px; right: 12px;
+      background: rgba(229, 9, 20, 0.92); color: #fff; font-size: 0.8rem; padding: 8px 12px;
+      border-radius: 6px; text-align: center; z-index: 50; animation: fadeIn 0.3s;
     }
-    .embed-warning a { color: var(--neon-cyan); text-decoration: underline; font-weight: bold; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     #booOverlay {
       display: none; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
@@ -194,25 +194,25 @@
 
   <header>
     <h1>🎤 KARAOKE LIVE STUDIO PRO</h1>
-    <p>Player Anti-Macet + Penilaian Otomatis & Suara Nyata</p>
+    <p>Khusus Instrumen Tanpa Vokal + Auto-Skip Anti Video Unavailable!</p>
     <button class="fullscreen-btn" onclick="toggleFullscreen()">🖥️ Layar Penuh</button>
   </header>
 
   <!-- Panel Pencarian -->
   <div class="search-panel">
     <div class="search-form">
-      <input type="text" id="searchInput" placeholder="Ketik judul lagu atau tempel Link YouTube di sini...">
-      <button class="btn-primary" id="searchBtn" onclick="mulaiPencarian()">🔍 Cari / Putar</button>
+      <input type="text" id="searchInput" placeholder="Ketik Artis & Judul Lagu (cth: Dewa 19 Kangen, Noah Separuh Aku, Adele...)">
+      <button class="btn-primary" id="searchBtn" onclick="mulaiPencarianKaraoke()">🔍 Cari Karaoke</button>
     </div>
 
-    <!-- Lagu Terverifikasi Bebas Blokir -->
+    <!-- Rekomendasi Lagu Karaoke Pasti Berputar -->
     <div class="quick-tags">
-      <span>⭐ Pilihan Bebas Blokir (100% Bisa Diputar):</span>
-      <button class="tag-btn" onclick="putarVideoLangsung('L3wKzyIN1yk', 'Bruno Mars When I Was Your Man')">Bruno Mars - When I Was Your Man</button>
-      <button class="tag-btn" onclick="putarVideoLangsung('2Vv-BfVoq4g', 'Ed Sheeran Perfect')">Ed Sheeran - Perfect</button>
-      <button class="tag-btn" onclick="putarVideoLangsung('fJ9rUzIMcZQ', 'Queen Bohemian Rhapsody')">Queen - Bohemian Rhapsody</button>
-      <button class="tag-btn" onclick="putarVideoLangsung('09R8_2nJtjg', 'Maroon 5 Sugar')">Maroon 5 - Sugar</button>
-      <button class="tag-btn" onclick="putarVideoLangsung('3JZ4pnNfyxQ', 'Adele Easy On Me')">Adele - Easy On Me</button>
+      <span>⭐ Pilihan Karaoke Populer:</span>
+      <button class="tag-btn" onclick="pilihLaguLangsung('L3wKzyIN1yk', 'Bruno Mars When I Was Your Man')">Bruno Mars - When I Was Your Man</button>
+      <button class="tag-btn" onclick="pilihLaguLangsung('2Vv-BfVoq4g', 'Ed Sheeran Perfect')">Ed Sheeran - Perfect</button>
+      <button class="tag-btn" onclick="pilihLaguLangsung('09R8_2nJtjg', 'Maroon 5 Sugar')">Maroon 5 - Sugar</button>
+      <button class="tag-btn" onclick="pilihLaguLangsung('fJ9rUzIMcZQ', 'Queen Bohemian Rhapsody')">Queen - Bohemian Rhapsody</button>
+      <button class="tag-btn" onclick="pilihLaguLangsung('3JZ4pnNfyxQ', 'Adele Easy On Me')">Adele - Easy On Me</button>
     </div>
 
     <div id="searchResults"></div>
@@ -221,17 +221,9 @@
   <!-- Panggung Utama & Lirik -->
   <div class="stage-container">
     <div class="video-box">
-      <!-- Direct IFrame: Paling Aman & Anti-Gagal -->
-      <iframe id="mainIframe" 
-              src="https://www.youtube-nocookie.com/embed/L3wKzyIN1yk?autoplay=1&rel=0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowfullscreen>
-      </iframe>
+      <div id="playerContainer"></div>
+      <div id="fallbackToast">⚠️ Video diblokir hak cipta. Otomatis beralih ke versi karaoke alternatif...</div>
       <div id="booOverlay">👎 BOOOOOOOOO! 👎</div>
-      <div class="embed-warning">
-        <span>Video tidak mau berputar?</span>
-        <a id="directYtLink" href="https://youtu.be/L3wKzyIN1yk" target="_blank">Buka Langsung di YouTube ↗</a>
-      </div>
     </div>
 
     <div class="lyrics-box">
@@ -243,7 +235,7 @@
           <button onclick="adjustOffset(0.5)" style="padding: 2px 6px;">+0.5s</button>
         </div>
       </div>
-      <div class="lyrics-hint">💡 <b>Tips:</b> Jika lirik balapan/terlambat, <b>KLIK baris kata</b> yang sedang terdengar di video!</div>
+      <div class="lyrics-hint">💡 <b>Tips:</b> Jika lirik balapan/terlambat, <b>KLIK baris lirik</b> yang sedang dinyanyikan!</div>
       <div class="lyrics-scroll" id="lyricsContainer">
         <p style="color: #666; margin-top: 50px;">Memuat lirik...</p>
       </div>
@@ -304,8 +296,10 @@
     </div>
   </div>
 
+  <script src="https://www.youtube.com/iframe_api"></script>
+
   <script>
-    // === 1. AUDIO SAMPLES ENGINE ===
+    // === 1. AUDIO ENGINE (SUARA NYATA) ===
     let soundMasterVolume = 1.0;
     const SOUND_URLS = {
       applause: 'https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/sound-board/sounds/applause.mp3',
@@ -345,66 +339,112 @@
       } catch (e) {}
     }
 
-    // === 2. PLAYER CORE CONTROLLER: 100% PASTI GANTI VIDEO ===
-    let currentVideoId = 'L3wKzyIN1yk';
+    // === 2. PLAYER CONTROLLER DENGAN FITUR AUTO-SKIP ERROR 150/101 ===
+    let player = null;
+    let syncInterval = null;
     let syncedLyrics = [];
     let lyricOffset = 0;
-    let songDuration = 240; // Default estimasi detik
-    let songTimer = 0;
-    let timerInterval = null;
+    let currentVideoId = 'L3wKzyIN1yk';
+    let isScoredThisSong = false;
+    let fallbackQueue = []; // Antrian video karaoke cadangan jika video utama diblokir
+    let currentSongTitle = '';
 
-    function putarVideoLangsung(videoId, judulLagu) {
-      currentVideoId = videoId;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('playerContainer', {
+        height: '100%',
+        width: '100%',
+        videoId: currentVideoId,
+        playerVars: {
+          autoplay: 1,
+          controls: 1,
+          rel: 0,
+          origin: window.location.origin
+        },
+        events: {
+          'onStateChange': onPlayerStateChange,
+          'onError': onPlayerError, // AUTO SKIP ERROR
+          'onReady': () => {
+            fetchLyrics('Bruno Mars When I Was Your Man');
+          }
+        }
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        if (syncInterval) clearInterval(syncInterval);
+        syncInterval = setInterval(updateLyricsSync, 200);
+      } else if (event.data === YT.PlayerState.ENDED) {
+        clearInterval(syncInterval);
+        hitungSkorOtomatis();
+      } else {
+        clearInterval(syncInterval);
+      }
+    }
+
+    // PENANGAN UTAMA VIDEO UNAVAILABLE (Error 150/101/100/2)
+    function onPlayerError(event) {
+      console.warn("YouTube Player Error Code:", event.data);
+      // 101 atau 150 = Pemilik lagu mematikan embed (Video Unavailable)
+      if (event.data === 150 || event.data === 101 || event.data === 100 || event.data === 2) {
+        if (fallbackQueue.length > 0) {
+          const nextVideo = fallbackQueue.shift();
+          const toast = document.getElementById('fallbackToast');
+          toast.style.display = 'block';
+          setTimeout(() => toast.style.display = 'none', 3500);
+
+          console.log("Melompat otomatis ke video karaoke cadangan:", nextVideo.id);
+          if (player && typeof player.loadVideoById === 'function') {
+            player.loadVideoById(nextVideo.id);
+          }
+        } else {
+          alert("Semua versi video resmi lagu ini dikunci oleh label musik. Silakan coba judul lagu karaoke lainnya!");
+        }
+      }
+    }
+
+    function putarVideoDenganFallback(primaryId, title, queue = []) {
+      currentVideoId = primaryId;
+      currentSongTitle = title;
+      fallbackQueue = queue.filter(item => item.id !== primaryId);
+      isScoredThisSong = false;
       lyricOffset = 0;
       totalSingingSamples = 0;
       onPitchSamples = 0;
       document.getElementById('offsetVal').innerText = `Offset: 0.0s`;
 
-      // Update IFrame src (PASTI GANTI DAN PLAY)
-      const iframe = document.getElementById('mainIframe');
-      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
-
-      // Update link cadangan
-      document.getElementById('directYtLink').href = `https://youtu.be/${videoId}`;
-
-      // Reset & mulai penghitung waktu lirik internal
-      resetTimer();
-
-      // Ambil Lirik
-      fetchLyrics(judulLagu);
+      if (player && typeof player.loadVideoById === 'function') {
+        player.loadVideoById(primaryId);
+      }
+      fetchLyrics(title);
     }
 
-    function resetTimer() {
-      if (timerInterval) clearInterval(timerInterval);
-      songTimer = 0;
-      timerInterval = setInterval(() => {
-        songTimer += 0.25;
-        updateLyricsSync(songTimer);
-
-        // Jika lagu sudah berjalan sekitar 3.5 menit, otomatis skor
-        if (songTimer > 210 && totalSingingSamples > 15) {
-          hitungSkorOtomatis();
-        }
-      }, 250);
+    function pilihLaguLangsung(videoId, title) {
+      document.getElementById('searchResults').style.display = 'none';
+      putarVideoDenganFallback(videoId, title, []);
     }
 
-    function extractVideoID(input) {
-      const match = input.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-      return match ? match[1] : (input.length === 11 && !input.includes(' ') ? input : null);
-    }
+    // === 3. MESIN PENCARI KHUSUS KARAOKE (6 CLUSTER SERVER) ===
+    const SEARCH_SERVERS = [
+      'https://pipedapi.kavin.rocks',
+      'https://api.piped.yt',
+      'https://pipedapi.adminforge.de',
+      'https://inv.nadeko.net',
+      'https://yewtu.be',
+      'https://invidious.privacydev.net'
+    ];
 
-    // === 3. PENCARIAN YOUTUBE DENGAN PROKSI VIDEO ASLI ===
-    async function mulaiPencarian() {
+    async function mulaiPencarianKaraoke() {
       const query = document.getElementById('searchInput').value.trim();
       const resultsContainer = document.getElementById('searchResults');
       const searchBtn = document.getElementById('searchBtn');
 
-      if (!query) return alert('Ketik judul lagu terlebih dahulu!');
+      if (!query) return alert('Ketik nama penyanyi dan judul lagu!');
 
-      // Cek apakah berupa URL YouTube langsung
+      // Cek apakah input berupa link YouTube langsung
       const directId = extractVideoID(query);
       if (directId) {
-        putarVideoLangsung(directId, 'Lagu Pilihan');
+        putarVideoDenganFallback(directId, query, []);
         resultsContainer.style.display = 'none';
         return;
       }
@@ -412,76 +452,97 @@
       searchBtn.innerText = "Mencari...";
       searchBtn.disabled = true;
       resultsContainer.style.display = 'grid';
-      resultsContainer.innerHTML = '<p style="color: var(--neon-cyan); grid-column: 1/-1;">Menghubungkan ke YouTube...</p>';
+      resultsContainer.innerHTML = '<p style="color: var(--neon-cyan); grid-column: 1/-1;">Menyaring trek karaoke murni (tanpa vokal)...</p>';
 
-      let videos = [];
+      let rawVideos = [];
 
-      // Proksi YouTube Search JSON
-      const searchEndpoints = [
-        `https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query + " karaoke")}&filter=videos`,
-        `https://api.piped.yt/search?q=${encodeURIComponent(query + " karaoke")}&filter=videos`
-      ];
+      // KUNCI PENCARIAN: Khusus Karaoke Tanpa Vokal
+      const strictKaraokeQuery = `${query} karaoke instrumental no vocal -official`;
 
-      for (const endpoint of searchEndpoints) {
+      for (const server of SEARCH_SERVERS) {
         try {
           const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 4000);
+          const timeout = setTimeout(() => controller.abort(), 3500);
+          
+          let endpoint = server.includes('piped')
+            ? `${server}/search?q=${encodeURIComponent(strictKaraokeQuery)}&filter=videos`
+            : `${server}/api/v1/search?q=${encodeURIComponent(strictKaraokeQuery)}&type=video`;
+
           const res = await fetch(endpoint, { signal: controller.signal });
           clearTimeout(timeout);
+
           if (res.ok) {
             const data = await res.json();
-            if (data.items && data.items.length > 0) {
-              videos = data.items.slice(0, 6).map(item => ({
-                id: item.url.replace('/watch?v=', ''),
+            const list = data.items || data;
+            if (Array.isArray(list) && list.length > 0) {
+              rawVideos = list.map(item => ({
+                id: item.url ? item.url.replace('/watch?v=', '') : item.videoId,
                 title: item.title,
-                uploader: item.uploaderName || 'Karaoke',
-                thumb: item.thumbnail
-              }));
-              break;
+                uploader: item.uploaderName || item.author || 'Karaoke',
+                thumb: item.thumbnail || (item.videoThumbnails && item.videoThumbnails[0] ? item.videoThumbnails[0].url : `https://i.ytimg.com/vi/${item.videoId}/mqdefault.jpg`)
+              })).filter(v => v.id);
+
+              if (rawVideos.length > 0) break;
             }
           }
         } catch (e) {}
       }
 
-      searchBtn.innerText = "🔍 Cari / Putar";
+      searchBtn.innerText = "🔍 Cari Karaoke";
       searchBtn.disabled = false;
 
-      if (videos.length === 0) {
-        // Jika server pencari terblokir, sediakan panduan instan
+      // FILTER KETAT: Hanya masukkan yang benar-benar trek Karaoke / Instrumental
+      const karaokeOnlyVideos = rawVideos.filter(v => {
+        const t = v.title.toLowerCase();
+        return t.includes('karaoke') || t.includes('instrumental') || t.includes('no vocal') || t.includes('minus one') || t.includes('tanpa vokal');
+      });
+
+      const finalResults = karaokeOnlyVideos.length > 0 ? karaokeOnlyVideos : rawVideos.slice(0, 6);
+
+      if (finalResults.length === 0) {
         resultsContainer.innerHTML = `
           <div style="grid-column: 1/-1; background: #222; padding: 15px; border-radius: 8px;">
-            <p style="color: #ff9999; margin-bottom: 8px;"><b>Pencarian otomatis YouTube sedang dibatasi.</b></p>
+            <p style="color: #ff9999; margin-bottom: 6px;"><b>Tidak menemukan video karaoke untuk lagu tersebut.</b></p>
             <p style="font-size: 0.85rem; color: #ccc;">
-              Buka YouTube, cari <b>"${query} karaoke"</b>, salin link videonya, lalu tempel ke kolom di atas. Web ini akan langsung memutarnya!
+              Coba cari dengan kata kunci lebih spesifik seperti: <b>"${query} instrumental"</b> atau tempel link video YouTube-nya langsung ke kolom ini!
             </p>
           </div>
         `;
         return;
       }
 
-      // TAMPILKAN HASIL DENGAN ID YANG PASTI BISA DIPUTAR
-      resultsContainer.innerHTML = videos.map(v => {
+      // Tampilkan hasil pencarian
+      resultsContainer.innerHTML = finalResults.map((v, index) => {
         const cleanTitle = v.title.replace(/'/g, "\\'");
+        // Siapkan opsi fallback cadangan
+        const otherOptions = finalResults.filter((_, i) => i !== index);
+        const queueStr = JSON.stringify(otherOptions).replace(/"/g, '&quot;');
+
         return `
-          <div class="result-item" onclick="putarVideoLangsung('${v.id}', '${cleanTitle}'); document.getElementById('searchResults').style.display='none';">
-            <img src="${v.thumb}" alt="thumb">
+          <div class="result-item" onclick="putarVideoDenganFallback('${v.id}', '${cleanTitle}', ${queueStr}); document.getElementById('searchResults').style.display='none';">
+            <img src="${v.thumb}" alt="thumb" onerror="this.src='https://i.ytimg.com/vi/${v.id}/mqdefault.jpg'">
             <div class="result-item-info">
               <strong>${v.title}</strong>
-              <span>▶ Klik untuk Putar</span>
+              <span>🎤 Versi Karaoke (Klik untuk Main)</span>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    // === 4. SISTEM LIRIK AKURAT & TAP-TO-SYNC ===
+    function extractVideoID(input) {
+      const match = input.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      return match ? match[1] : (input.length === 11 && !input.includes(' ') ? input : null);
+    }
+
+    // === 4. LIRIK AKURAT & FITUR TAP TO SYNC ===
     async function fetchLyrics(songTitle) {
       const container = document.getElementById('lyricsContainer');
-      container.innerHTML = '<p style="color: var(--neon-cyan)">Mengambil lirik yang sesuai...</p>';
+      container.innerHTML = '<p style="color: var(--neon-cyan)">Mengambil lirik sinkron...</p>';
       syncedLyrics = [];
 
       const cleanTitle = songTitle
-        .replace(/karaoke|instrumental|no vocal|minus one|lirik|lyrics|official|audio|video|hd|hq/gi, '')
+        .replace(/karaoke|instrumental|no vocal|minus one|tanpa vokal|lirik|lyrics|official|audio|video|hd|hq/gi, '')
         .replace(/[\(\)\[\]\-]/g, ' ')
         .trim();
 
@@ -496,10 +557,10 @@
         } else if (match && match.plainLyrics) {
           container.innerHTML = match.plainLyrics.split('\n').map(l => `<div class="lyrics-line">${l}</div>`).join('');
         } else {
-          container.innerHTML = '<p style="color:#ff007f;">Lirik tidak ditemukan di database. Bernyanyilah mengikuti video!</p>';
+          container.innerHTML = '<p style="color:#ff007f;">Lirik otomatis tidak tersedia di database. Ikuti teks pada video!</p>';
         }
       } catch (err) {
-        container.innerHTML = '<p style="color:#ff007f;">Gagal memuat lirik (Periksa koneksi).</p>';
+        container.innerHTML = '<p style="color:#ff007f;">Gagal memuat lirik (cek koneksi internet).</p>';
       }
     }
 
@@ -526,19 +587,21 @@
     }
 
     function kalibrasiLirik(index) {
+      if (!player || typeof player.getCurrentTime !== 'function') return;
       const targetTime = syncedLyrics[index].time;
-      lyricOffset = songTimer - targetTime;
+      const currentVideoTime = player.getCurrentTime();
+      lyricOffset = currentVideoTime - targetTime;
       document.getElementById('offsetVal').innerText = `Offset: ${lyricOffset > 0 ? '+' : ''}${lyricOffset.toFixed(1)}s`;
-      updateLyricsSync(songTimer);
+      updateLyricsSync();
     }
 
-    function updateLyricsSync(currentTime) {
-      if (syncedLyrics.length === 0) return;
-      const adjustedTime = currentTime - lyricOffset;
+    function updateLyricsSync() {
+      if (!player || typeof player.getCurrentTime !== 'function') return;
+      const currentTime = player.getCurrentTime() - lyricOffset;
       let activeIndex = -1;
 
       for (let i = 0; i < syncedLyrics.length; i++) {
-        if (adjustedTime >= syncedLyrics[i].time) activeIndex = i;
+        if (currentTime >= syncedLyrics[i].time) activeIndex = i;
         else break;
       }
 
@@ -556,17 +619,20 @@
 
     function adjustOffset(delta) {
       lyricOffset += delta;
-      document.getElementById('offsetVal').innerText = `Offset: ${lyricOffset > 0 ? '+' : ''}${lyricOffset.toFixed(1)}s`;
+      document.getElementById('offsetVal').innerText = `Offset: ${lyricOffset.toFixed(1)}s`;
     }
 
-    // === 5. SISTEM PENILAIAN SKOR OTOMATIS DENGAN REAKSI ===
+    // === 5. SISTEM SKOR & REAKSI SUARA ===
     function hitungSkorOtomatis(isManual = false) {
+      if (isScoredThisSong && !isManual) return;
+      isScoredThisSong = true;
+
       let finalScore;
       if (totalSingingSamples >= 15) {
         const ratio = onPitchSamples / totalSingingSamples;
         finalScore = Math.floor(65 + (ratio * 32) + (Math.random() * 3));
       } else {
-        finalScore = Math.floor(58 + Math.random() * 15); // Skor Rendah (< 75)
+        finalScore = Math.floor(58 + Math.random() * 15);
       }
 
       if (finalScore > 99) finalScore = 99;
@@ -574,22 +640,17 @@
       let grade = "";
       let comment = "";
 
-      // 1. Skor Tinggi (>= 90): Tepuk Tangan Meriah + Sorakan Heboh!
       if (finalScore >= 90) {
         grade = "🏆 GRADE S (LUAR BIASA!)";
         comment = "Suara emas! Seluruh stadion berguncang memberikan tepuk tangan meriah!";
         playRealSound('applause');
         setTimeout(() => playRealSound('cheer'), 400);
         setTimeout(() => playRealSound('victory'), 900);
-      } 
-      // 2. Skor Sedang (75 - 89): Tepuk Tangan Hangat
-      else if (finalScore >= 75) {
+      } else if (finalScore >= 75) {
         grade = "👏 GRADE B (BAGUS)";
         comment = "Penampilan yang enak didengar dan stabil! Pertahankan!";
         playRealSound('applause');
-      } 
-      // 3. Skor Rendah (< 75): Sorakan BOOO!
-      else {
+      } else {
         grade = "👎 GRADE D (FALS TOTAL)";
         comment = "Aduh ampun! Nadanya banyak yang meleset, penonton menyoraki!";
         playRealSound('boo');
@@ -605,7 +666,7 @@
       document.getElementById('scoreModal').style.display = 'none';
     }
 
-    // === 6. MIC & AUDIO ANALYZER ===
+    // === 6. MIC & NADA KUNCI ===
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let micStream, micSource, micGain, delayNode, feedbackGain, micAnalyser, pitchFilter;
     let currentKeySemitone = 0;
@@ -701,13 +762,7 @@
     }
 
     document.getElementById('searchInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') mulaiPencarian();
-    });
-
-    // Jalankan lirik lagu pertama saat web dimuat
-    window.addEventListener('DOMContentLoaded', () => {
-      resetTimer();
-      fetchLyrics('Bruno Mars When I Was Your Man');
+      if (e.key === 'Enter') mulaiPencarianKaraoke();
     });
   </script>
 </body>
