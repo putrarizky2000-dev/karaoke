@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio Karaoke Neon Pro</title>
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --card-bg: #1f2833;
+      --neon-cyan: #66fcf1;
+      --neon-pink: #ff007f;
+      --text: #ffffff;
+      --text-muted: #c5c6c7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    
+    header { text-align: center; margin-bottom: 20px; }
+    header h1 { font-size: 2.2rem; color: var(--neon-cyan); text-shadow: 0 0 10px rgba(102, 252, 241, 0.5); }
+    header p { color: var(--text-muted); font-size: 0.95rem; }
+
+    /* Top Control Bar */
+    .search-panel {
+      display: flex; gap: 10px; width: 100%; max-width: 1100px; margin-bottom: 20px;
+      background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    input {
+      flex: 1; padding: 12px 15px; background: #0b0c10; border: 1px solid #45a29e;
+      border-radius: 8px; color: #fff; font-size: 1rem; outline: none;
+    }
+    input:focus { border-color: var(--neon-cyan); box-shadow: 0 0 8px rgba(102,252,241,0.4); }
+    button {
+      padding: 12px 20px; font-weight: bold; border: none; border-radius: 8px;
+      cursor: pointer; transition: 0.2s; font-size: 0.95rem;
+    }
+    .btn-primary { background: var(--neon-cyan); color: #0b0c10; }
+    .btn-primary:hover { background: #45a29e; }
+
+    /* Main Stage Layout */
+    .stage-container {
+      display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px;
+      width: 100%; max-width: 1100px;
+    }
+
+    /* Video Player Box */
+    .video-box {
+      background: #000; border-radius: 12px; overflow: hidden;
+      aspect-ratio: 16/9; position: relative; border: 1px solid #333;
+    }
+    #player { width: 100%; height: 100%; }
+
+    /* Lyrics Display */
+    .lyrics-box {
+      background: var(--card-bg); border-radius: 12px; padding: 20px;
+      display: flex; flex-direction: column; height: 380px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .lyrics-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+    .lyrics-header h3 { color: var(--neon-pink); }
+    .lyrics-scroll {
+      flex: 1; overflow-y: auto; scroll-behavior: smooth; text-align: center;
+      display: flex; flex-direction: column; gap: 12px; padding: 20px 0;
+    }
+    .lyrics-line {
+      font-size: 1.1rem; color: #777; transition: all 0.3s;
+      padding: 4px; border-radius: 6px;
+    }
+    .lyrics-line.active {
+      color: var(--neon-cyan); font-size: 1.35rem; font-weight: bold;
+      text-shadow: 0 0 12px rgba(102, 252, 241, 0.8);
+      background: rgba(102, 252, 241, 0.08);
+    }
+
+    /* Bottom Soundboard & Controls */
+    .bottom-panel {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+      width: 100%; max-width: 1100px; margin-top: 20px;
+    }
+    .card { background: var(--card-bg); padding: 18px; border-radius: 12px; border: 1px solid #333; }
+    .card h4 { margin-bottom: 12px; color: var(--text-muted); font-size: 0.95rem; text-transform: uppercase; }
+
+    /* Sound FX Buttons */
+    .soundboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .btn-sound {
+      background: #2b323c; color: #fff; padding: 15px 5px; font-size: 0.85rem;
+      border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px;
+    }
+    .btn-sound:hover { background: var(--neon-pink); transform: translateY(-2px); }
+    .btn-sound span { font-size: 1.5rem; }
+
+    /* Mic Controls */
+    .mic-controls { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+    .slider-group { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🎤 KARAOKE LIVE STUDIO</h1>
+    <p>Cari judul lagu atau tempel URL YouTube Instrumental & bernyanyilah!</p>
+  </header>
+
+  <!-- Bar Input Pencarian -->
+  <div class="search-panel">
+    <input type="text" id="songQuery" placeholder="Ketik Artis & Judul (Contoh: Adele - Someone Like You)" value="Adele - Someone Like You">
+    <input type="text" id="videoUrl" placeholder="Atau Tempel ID/Link Video YouTube Karaoke (opsional)">
+    <button class="btn-primary" onclick="mulaiKaraoke()">Cari & Mainkan</button>
+  </div>
+
+  <!-- Panggung Utama -->
+  <div class="stage-container">
+    <div class="video-box">
+      <div id="player"></div>
+    </div>
+
+    <div class="lyrics-box">
+      <div class="lyrics-header">
+        <h3>📜 Lirik Sinkron Otomatis</h3>
+        <div style="font-size: 0.8rem; display: flex; gap: 5px;">
+          <button onclick="adjustOffset(-0.5)" style="padding: 2px 6px;">-0.5s</button>
+          <span id="offsetVal">Offset: 0.0s</span>
+          <button onclick="adjustOffset(0.5)" style="padding: 2px 6px;">+0.5s</button>
+        </div>
+      </div>
+      <div class="lyrics-scroll" id="lyricsContainer">
+        <p style="color: #666; margin-top: 50px;">Lirik akan muncul di sini setelah lagu dimulai...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel Efek Suara & Mic -->
+  <div class="bottom-panel">
+    <!-- Papan Sorakan (Soundboard) -->
+    <div class="card">
+      <h4>🎉 Efek Sorakan Panggung</h4>
+      <div class="soundboard-grid">
+        <button class="btn-sound" onclick="playCheer()"><span>👏</span>Tepuk Tangan</button>
+        <button class="btn-sound" onclick="playCrowdCheer()"><span>🥳</span>Sorakan Heboh</button>
+        <button class="btn-sound" onclick="playAirhorn()"><span>📢</span>Air Horn</button>
+        <button class="btn-sound" onclick="playRimshot()"><span>🥁</span>Drum Ba-Dum!</button>
+      </div>
+    </div>
+
+    <!-- Kontrol Mikrofon Asli -->
+    <div class="card">
+      <h4>🎙️ Pengaturan Mic & Gema (Echo)</h4>
+      <div class="mic-controls">
+        <button id="micBtn" class="btn-primary" onclick="toggleMicrophone()" style="background: #333; color: #fff;">Nyalakan Mic</button>
+        <div class="slider-group">
+          <label>Volume Mic</label>
+          <input type="range" id="micVolume" min="0" max="2" step="0.1" value="1" onchange="updateMicVolume(this.value)">
+        </div>
+        <div class="slider-group">
+          <label>Gema (Echo)</label>
+          <input type="range" id="micEcho" min="0" max="0.8" step="0.1" value="0.3" onchange="updateMicEcho(this.value)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <script>
+    // === 1. AUDIO SYNTHESIZER (Untuk Efek Sorakan Web Audio API) ===
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Efek Tepuk Tangan (Applause/Clapping)
+    function playCheer() {
+      for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+          const bufferSize = audioCtx.sampleRate * 0.05;
+          const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let j = 0; j < bufferSize; j++) data[j] = Math.random() * 2 - 1;
+          const noise = audioCtx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 1000 + Math.random() * 600;
+          const gain = audioCtx.createGain();
+          gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+          noise.start();
+        }, i * (Math.random() * 40 + 10));
+      }
+    }
+
+    // Efek Sorakan Ramai (Crowd Cheer)
+    function playCrowdCheer() {
+      const bufferSize = audioCtx.sampleRate * 2.5;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(1400, audioCtx.currentTime + 1.5);
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.5);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2.5);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start();
+    }
+
+    // Efek Air Horn (Klakson Reggaeton / Panggung)
+    function playAirhorn() {
+      const freqs = [466.16, 466.16, 466.16, 370.0, 415.3];
+      freqs.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.1);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime + idx * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + idx * 0.1 + 0.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + idx * 0.1);
+        osc.stop(audioCtx.currentTime + idx * 0.1 + 0.25);
+      });
+    }
+
+    // Efek Drum Rimshot
+    function playRimshot() {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.15);
+    }
+
+    // === 2. SETUP MIKROFON & LIVE ECHO ===
+    let micStream = null, micSource = null, micGain = null, delayNode = null, feedbackGain = null;
+    async function toggleMicrophone() {
+      const btn = document.getElementById('micBtn');
+      if (!micStream) {
+        try {
+          micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          if (audioCtx.state === 'suspended') await audioCtx.resume();
+          
+          micSource = audioCtx.createMediaStreamSource(micStream);
+          micGain = audioCtx.createGain();
+          delayNode = audioCtx.createDelay();
+          feedbackGain = audioCtx.createGain();
+
+          delayNode.delayTime.value = 0.25; // Waktu pantul (gema)
+          feedbackGain.gain.value = 0.3;     // Panjang pantulan
+
+          // Routing Mic -> Delay -> Feedback
+          micSource.connect(micGain);
+          micGain.connect(audioCtx.destination); // Direct Mic
+          micGain.connect(delayNode);
+          delayNode.connect(feedbackGain);
+          feedbackGain.connect(delayNode);
+          delayNode.connect(audioCtx.destination); // Echoed Sound
+
+          btn.innerText = "Matikan Mic";
+          btn.style.background = "var(--neon-pink)";
+        } catch (e) {
+          alert("Gagal mengakses mikrofon: " + e.message);
+        }
+      } else {
+        micStream.getTracks().forEach(track => track.stop());
+        micStream = null;
+        btn.innerText = "Nyalakan Mic";
+        btn.style.background = "#333";
+      }
+    }
+    function updateMicVolume(val) { if (micGain) micGain.gain.value = val; }
+    function updateMicEcho(val) { if (feedbackGain) feedbackGain.gain.value = val; }
+
+    // === 3. YOUTUBE API & PLAYER SETUP ===
+    let player;
+    let syncInterval;
+    let syncedLyrics = [];
+    let lyricOffset = 0;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: 'L3HQMbTHN5I', // Default: Adele Someone Like You Karaoke
+        playerVars: { autoplay: 0, controls: 1 },
+        events: { 'onStateChange': onPlayerStateChange }
+      });
+    }
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.PLAYING) {
+        if (syncInterval) clearInterval(syncInterval);
+        syncInterval = setInterval(updateLyricsSync, 200);
+      } else {
+        clearInterval(syncInterval);
+      }
+    }
+
+    // Ekstrak YouTube Video ID dari teks / URL
+    function extractVideoID(input) {
+      const regex = /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/;
+      const match = input.match(regex);
+      return match ? match[1] : (input.length === 11 ? input : null);
+    }
+
+    // === 4. SISTEM CARI LAGU & LIRIK (LRCLIB API) ===
+    async function mulaiKaraoke() {
+      const query = document.getElementById('songQuery').value.trim();
+      const customUrl = document.getElementById('videoUrl').value.trim();
+      
+      // 1. Ganti Video YouTube
+      if (customUrl) {
+        const id = extractVideoID(customUrl);
+        if (id && player) player.loadVideoById(id);
+      } else if (query) {
+        // Otomatis cari instrumental di YouTube via search query
+        const searchQuery = encodeURIComponent(query + " instrumental karaoke");
+        // Update URL embed
+        const iframe = document.getElementById('player');
+        iframe.src = `https://www.youtube.com/embed?listType=search&list=${searchQuery}&autoplay=1&enablejsapi=1`;
+      }
+
+      // 2. Ambil Lirik Otomatis dari Database Terbuka (LRCLIB)
+      fetchLyrics(query);
+    }
+
+    async function fetchLyrics(songTitle) {
+      const container = document.getElementById('lyricsContainer');
+      container.innerHTML = '<p style="color: var(--neon-cyan)">Sedang mengunduh lirik sinkron...</p>';
+      syncedLyrics = [];
+
+      try {
+        const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(songTitle)}`);
+        const data = await res.json();
+        
+        // Prioritaskan lagu dengan lirik bertanda waktu (syncedLyrics)
+        const match = data.find(item => item.syncedLyrics) || data[0];
+        
+        if (match && match.syncedLyrics) {
+          parseLRC(match.syncedLyrics);
+          renderLyrics();
+        } else if (match && match.plainLyrics) {
+          container.innerHTML = match.plainLyrics.split('\n').map(l => `<div class="lyrics-line">${l}</div>`).join('');
+        } else {
+          container.innerHTML = '<p style="color:#e50914;">Lirik tidak ditemukan untuk lagu ini. Anda tetap bisa bernyanyi mengikuti video!</p>';
+        }
+      } catch (err) {
+        container.innerHTML = '<p style="color:#e50914;">Gagal memuat lirik otomatis (Periksa koneksi internet).</p>';
+      }
+    }
+
+    // Parse format LRC [mm:ss.xx] teks
+    function parseLRC(lrcText) {
+      syncedLyrics = [];
+      const lines = lrcText.split('\n');
+      const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+      
+      for (let line of lines) {
+        const match = timeRegex.exec(line);
+        if (match) {
+          const min = parseInt(match[1]);
+          const sec = parseFloat(match[2] + '.' + match[3]);
+          const time = min * 60 + sec;
+          const text = line.replace(timeRegex, '').trim();
+          if (text) syncedLyrics.push({ time, text });
+        }
+      }
+    }
+
+    function renderLyrics() {
+      const container = document.getElementById('lyricsContainer');
+      container.innerHTML = syncedLyrics.map((item, idx) => 
+        `<div class="lyrics-line" id="lyric-${idx}">${item.text}</div>`
+      ).join('');
+    }
+
+    // Highlight & Auto Scroll Lirik sesuai menit video
+    function updateLyricsSync() {
+      if (!player || !player.getCurrentTime || syncedLyrics.length === 0) return;
+      const currentTime = player.getCurrentTime() + lyricOffset;
+
+      let activeIndex = -1;
+      for (let i = 0; i < syncedLyrics.length; i++) {
+        if (currentTime >= syncedLyrics[i].time) {
+          activeIndex = i;
+        } else {
+          break;
+        }
+      }
+
+      if (activeIndex !== -1) {
+        document.querySelectorAll('.lyrics-line').forEach((el, i) => {
+          if (i === activeIndex) {
+            el.classList.add('active');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+            el.classList.remove('active');
+          }
+        });
+      }
+    }
+
+    function adjustOffset(delta) {
+      lyricOffset += delta;
+      document.getElementById('offsetVal').innerText = `Offset: ${lyricOffset.toFixed(1)}s`;
+    }
+  </script>
+</body>
+</html>
