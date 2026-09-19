@@ -29,7 +29,7 @@
       overflow-x: hidden;
     }
 
-    /* === GERBANG KUNCI PASSWORD PRIVAT === */
+    /* === GERBANG KUNCI PASSWORD & WAKTU PRIVAT === */
     #privateLockGate {
       position: fixed; inset: 0; background: radial-gradient(circle, #101720 0%, #060709 100%);
       z-index: 999999; display: flex; justify-content: center; align-items: center; padding: 20px;
@@ -37,15 +37,15 @@
     .lock-box {
       background: linear-gradient(145deg, #18202a, #0b0f14);
       border: 2px solid var(--neon-cyan); border-radius: 20px;
-      padding: clamp(25px, 5vw, 40px); width: 100%; max-width: 400px;
+      padding: clamp(25px, 5vw, 40px); width: 100%; max-width: 420px;
       text-align: center; box-shadow: 0 0 45px rgba(102, 252, 241, 0.35);
     }
     .lock-box span { font-size: 3.5rem; display: block; margin-bottom: 12px; filter: drop-shadow(0 0 12px var(--neon-cyan)); }
     .lock-box h2 { color: var(--neon-cyan); font-size: 1.5rem; margin-bottom: 6px; }
-    .lock-box p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 22px; }
+    .lock-box p { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
     
     .password-input-wrapper {
-      position: relative; width: 100%; margin-bottom: 12px;
+      position: relative; width: 100%; margin-bottom: 16px;
     }
     .password-input {
       width: 100%; padding: 14px 45px 14px 16px; font-size: 1rem;
@@ -59,7 +59,25 @@
       opacity: 0.8; transition: 0.2s;
     }
     .btn-toggle-pass:hover { opacity: 1; transform: translateY(-50%) scale(1.1); }
+    
+    /* Pilihan Durasi */
+    .duration-group {
+      text-align: left; margin-bottom: 18px;
+    }
+    .duration-group label {
+      display: block; font-size: 0.85rem; color: var(--neon-cyan); font-weight: bold; margin-bottom: 8px;
+    }
+    .duration-select {
+      width: 100%; padding: 12px 14px; font-size: 0.95rem; font-weight: bold;
+      background: #060709; color: #fff; border: 2px solid #45a29e; border-radius: 10px;
+      outline: none; cursor: pointer; transition: 0.2s;
+    }
+    .duration-select:focus {
+      border-color: var(--neon-cyan); box-shadow: 0 0 15px rgba(102, 252, 241, 0.5);
+    }
+
     .lock-err { color: var(--neon-red); font-size: 0.85rem; margin-bottom: 14px; display: none; font-weight: bold; }
+    .lock-alert { color: var(--neon-gold); font-size: 0.85rem; margin-bottom: 14px; display: none; font-weight: bold; }
     
     header {
       text-align: center; margin-bottom: 15px; width: 100%; max-width: 1200px;
@@ -70,6 +88,24 @@
       text-shadow: 0 0 14px rgba(102, 252, 241, 0.7);
     }
     header p { color: var(--text-muted); font-size: clamp(0.85rem, 1.8vw, 1rem); }
+
+    /* Badge Timer di Header */
+    .session-timer-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 6px; padding: 5px 14px; border-radius: 20px;
+      background: #141b22; border: 1px solid var(--neon-cyan);
+      color: var(--neon-cyan); font-weight: bold; font-size: 0.9rem;
+      letter-spacing: 1px; box-shadow: 0 0 10px rgba(102, 252, 241, 0.3);
+    }
+    .session-timer-badge.warning {
+      border-color: var(--neon-red); color: var(--neon-red);
+      animation: pulseRed 1s infinite alternate;
+      box-shadow: 0 0 15px rgba(255, 51, 51, 0.6);
+    }
+    @keyframes pulseRed {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0.7; transform: scale(1.05); }
+    }
     
     .header-btns {
       position: absolute; right: 0; top: 0; display: flex; gap: 8px;
@@ -260,19 +296,31 @@
 </head>
 <body>
 
-  <!-- GERBANG KUNCI PASSWORD PRIVAT -->
+  <!-- GERBANG KUNCI PASSWORD & PILIH WAKTU PRIVAT -->
   <div id="privateLockGate">
     <div class="lock-box">
       <span>🔐</span>
       <h2>BIIH KARAOKE PRIVAT</h2>
-      <p>Akses khusus ruangan Khairi. Masukkan password untuk membuka studio:</p>
+      <p>Akses khusus ruangan Khairi. Masukkan password dan pilih durasi karaoke:</p>
       
       <div class="password-input-wrapper">
         <input type="password" id="passInput" class="password-input" placeholder="Ketik kata sandi di sini..." autofocus onkeydown="if(event.key==='Enter') verifikasiPassword()">
         <button type="button" class="btn-toggle-pass" onclick="toggleLihatPassword()" title="Lihat/Sembunyikan password">👁️</button>
       </div>
+
+      <!-- Pilih Durasi Karaoke -->
+      <div class="duration-group">
+        <label for="durationSelect">⏱️ Pilih Waktu Bernyanyi:</label>
+        <select id="durationSelect" class="duration-select">
+          <option value="60">1 Jam (60 Menit)</option>
+          <option value="120">2 Jam (120 Menit)</option>
+          <option value="180">3 Jam (180 Menit)</option>
+          <option value="1">1 Menit (Mode Tes Singkat)</option>
+        </select>
+      </div>
       
       <div id="lockErrorMsg" class="lock-err">⚠️ Password salah! Silakan coba lagi.</div>
+      <div id="lockAlertMsg" class="lock-alert">⏰ Waktu karaoke Anda telah habis! Silakan buka kembali dengan sandi.</div>
       
       <button class="btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;" onclick="verifikasiPassword()">🔓 Buka Studio</button>
     </div>
@@ -281,8 +329,11 @@
   <header>
     <h1>ALIBIA BIIH KARAOKE🎤</h1>
     <p>PARUNG BOGOR</p>
+    <div>
+      <div id="sessionTimerDisplay" class="session-timer-badge">⏳ 00:00:00</div>
+    </div>
     <div class="header-btns">
-      <button class="header-btn" onclick="kunciUlangStudio()">🔒 Kunci</button>
+      <button class="header-btn" onclick="kunciUlangStudio(false)">🔒 Kunci</button>
       <button class="header-btn" onclick="openApiKeyModal()">🔑 API Key</button>
       <button class="header-btn" onclick="toggleFullscreen()">🖥️ Layar Penuh</button>
     </div>
@@ -419,30 +470,87 @@
   </div>
 
   <script>
-    // === 0. SISTEM KEAMANAN PASSWORD PRIVAT ===
-    // UBAH KATA SANDI (PASSWORD) DI BAWAH INI SESUAI KEINGINAN ANDA:
+    // === 0. SISTEM KEAMANAN PASSWORD & DURASI WAKTU OTOMATIS ===
     const MASTER_PASSWORD = "khairi";
+    let sessionCountdownInterval = null;
+
+    function formatTimeRemaining(totalSeconds) {
+      const h = Math.floor(totalSeconds / 3600);
+      const m = Math.floor((totalSeconds % 3600) / 60);
+      const s = totalSeconds % 60;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function startSessionTimer(expiryTimestamp) {
+      if (sessionCountdownInterval) clearInterval(sessionCountdownInterval);
+
+      const timerElem = document.getElementById('sessionTimerDisplay');
+
+      function updateClock() {
+        const now = Date.now();
+        const diff = Math.max(0, Math.floor((expiryTimestamp - now) / 1000));
+
+        if (diff <= 0) {
+          clearInterval(sessionCountdownInterval);
+          timerElem.innerText = "⏳ 00:00:00";
+          timerElem.classList.remove('warning');
+          kunciUlangStudio(true);
+          return;
+        }
+
+        timerElem.innerText = `⏳ ${formatTimeRemaining(diff)}`;
+
+        // Peringatan merah jika waktu tersisa di bawah 5 menit (300 detik)
+        if (diff < 300) {
+          timerElem.classList.add('warning');
+        } else {
+          timerElem.classList.remove('warning');
+        }
+      }
+
+      updateClock();
+      sessionCountdownInterval = setInterval(updateClock, 1000);
+    }
 
     function periksaStatusKunci() {
       const isUnlocked = sessionStorage.getItem('biih_karaoke_unlocked');
-      if (isUnlocked === 'true') {
+      const expiresAt = parseInt(sessionStorage.getItem('biih_karaoke_expiry') || '0', 10);
+      const now = Date.now();
+
+      if (isUnlocked === 'true' && expiresAt > now) {
         document.getElementById('privateLockGate').style.display = 'none';
+        startSessionTimer(expiresAt);
       } else {
-        document.getElementById('privateLockGate').style.display = 'flex';
-        const p = document.getElementById('passInput');
-        if (p) p.focus();
+        if (isUnlocked === 'true' && expiresAt <= now) {
+          // Bila sesi kadaluarsa saat browser dibuka kembali
+          kunciUlangStudio(true);
+        } else {
+          document.getElementById('privateLockGate').style.display = 'flex';
+          const p = document.getElementById('passInput');
+          if (p) p.focus();
+        }
       }
     }
 
     function verifikasiPassword() {
       const input = document.getElementById('passInput').value;
       const err = document.getElementById('lockErrorMsg');
+      const alertMsg = document.getElementById('lockAlertMsg');
+      const durasiMenit = parseInt(document.getElementById('durationSelect').value, 10) || 60;
+
       if (input === MASTER_PASSWORD) {
+        const expiryTimestamp = Date.now() + (durasiMenit * 60 * 1000);
         sessionStorage.setItem('biih_karaoke_unlocked', 'true');
+        sessionStorage.setItem('biih_karaoke_expiry', expiryTimestamp.toString());
+
         document.getElementById('privateLockGate').style.display = 'none';
         err.style.display = 'none';
+        alertMsg.style.display = 'none';
+
+        startSessionTimer(expiryTimestamp);
       } else {
         err.style.display = 'block';
+        alertMsg.style.display = 'none';
         document.getElementById('passInput').value = '';
         document.getElementById('passInput').focus();
       }
@@ -453,15 +561,35 @@
       p.type = (p.type === 'password' ? 'text' : 'password');
     }
 
-    function kunciUlangStudio() {
+    function kunciUlangStudio(isExpired = false) {
+      if (sessionCountdownInterval) clearInterval(sessionCountdownInterval);
       sessionStorage.removeItem('biih_karaoke_unlocked');
+      sessionStorage.removeItem('biih_karaoke_expiry');
+
+      // Hentikan pemutaran lagu jika ada
+      if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
+        try { ytPlayer.stopVideo(); } catch (e) {}
+      }
+      if (lyricTimer) clearInterval(lyricTimer);
+      document.getElementById('playerContainer').innerHTML = '';
+      document.getElementById('standbyScreen').style.display = 'flex';
+      document.getElementById('lyricsContainer').innerHTML = '<p style="color: #666; margin-top: 50px;">Lirik akan muncul otomatis di samping saat lagu diputar...</p>';
+
       document.getElementById('passInput').value = '';
       document.getElementById('lockErrorMsg').style.display = 'none';
+
+      const alertMsg = document.getElementById('lockAlertMsg');
+      if (isExpired) {
+        alertMsg.style.display = 'block';
+      } else {
+        alertMsg.style.display = 'none';
+      }
+
       document.getElementById('privateLockGate').style.display = 'flex';
       document.getElementById('passInput').focus();
     }
 
-    // Periksa password saat web pertama kali dibuka
+    // Periksa password dan waktu saat web pertama kali dibuka
     window.addEventListener('DOMContentLoaded', periksaStatusKunci);
 
     // === 1. AUDIO SOUNDBOARD ===
