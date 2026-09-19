@@ -23,10 +23,22 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    /* Layout dikunci 100vh: Layar fix tanpa scrollbar luar */
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+    }
+
     body {
-      background: var(--bg); color: var(--text); padding: clamp(10px, 2vw, 25px);
-      display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 18px 12px 18px;
+      gap: 8px;
     }
 
     /* === GERBANG KUNCI PASSWORD & WAKTU PRIVAT === */
@@ -37,7 +49,7 @@
     .lock-box {
       background: linear-gradient(145deg, #18202a, #0b0f14);
       border: 2px solid var(--neon-cyan); border-radius: 20px;
-      padding: clamp(25px, 5vw, 40px); width: 100%; max-width: 420px;
+      padding: clamp(25px, 5vw, 40px); width: 100%; max-width: 440px;
       text-align: center; box-shadow: 0 0 45px rgba(102, 252, 241, 0.35);
     }
     .lock-box span { font-size: 3.5rem; display: block; margin-bottom: 12px; filter: drop-shadow(0 0 12px var(--neon-cyan)); }
@@ -60,7 +72,7 @@
     }
     .btn-toggle-pass:hover { opacity: 1; transform: translateY(-50%) scale(1.1); }
     
-    /* Pilihan Durasi */
+    /* Pilihan Durasi (Mendukung hingga 6 Jam) */
     .duration-group {
       text-align: left; margin-bottom: 18px;
     }
@@ -79,22 +91,22 @@
     .lock-err { color: var(--neon-red); font-size: 0.85rem; margin-bottom: 14px; display: none; font-weight: bold; }
     .lock-alert { color: var(--neon-gold); font-size: 0.85rem; margin-bottom: 14px; display: none; font-weight: bold; }
     
+    /* Header Ringkas */
     header {
-      text-align: center; margin-bottom: 15px; width: 100%; max-width: 1200px;
-      position: relative;
+      display: flex; justify-content: space-between; align-items: center;
+      width: 100%; flex-shrink: 0; padding: 2px 0;
     }
-    header h1 {
-      font-size: clamp(1.5rem, 3.5vw, 2.4rem); color: var(--neon-cyan);
-      text-shadow: 0 0 14px rgba(102, 252, 241, 0.7);
+    .header-left h1 {
+      font-size: clamp(1.2rem, 2.2vw, 1.8rem); color: var(--neon-cyan);
+      text-shadow: 0 0 12px rgba(102, 252, 241, 0.6); display: inline-block; margin-right: 10px;
     }
-    header p { color: var(--text-muted); font-size: clamp(0.85rem, 1.8vw, 1rem); }
+    .header-left span { color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px; }
 
-    /* Badge Timer di Header */
     .session-timer-badge {
       display: inline-flex; align-items: center; gap: 6px;
-      margin-top: 6px; padding: 5px 14px; border-radius: 20px;
+      padding: 4px 12px; border-radius: 20px;
       background: #141b22; border: 1px solid var(--neon-cyan);
-      color: var(--neon-cyan); font-weight: bold; font-size: 0.9rem;
+      color: var(--neon-cyan); font-weight: bold; font-size: 0.88rem;
       letter-spacing: 1px; box-shadow: 0 0 10px rgba(102, 252, 241, 0.3);
     }
     .session-timer-badge.warning {
@@ -107,78 +119,85 @@
       100% { opacity: 0.7; transform: scale(1.05); }
     }
     
-    .header-btns {
-      position: absolute; right: 0; top: 0; display: flex; gap: 8px;
-    }
+    .header-btns { display: flex; gap: 8px; align-items: center; }
     .header-btn {
       background: #121820; border: 1px solid #45a29e; color: var(--neon-cyan);
-      padding: 7px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem;
+      padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;
     }
     .header-btn:hover { background: var(--neon-cyan); color: #000; }
 
-    /* Search Bar */
+    /* Search Bar & Hasil Melayang */
     .search-panel {
-      width: 100%; max-width: 1200px; margin-bottom: 15px;
-      background: var(--card-bg); padding: clamp(12px, 2vw, 18px); border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5); position: relative;
+      width: 100%; flex-shrink: 0; position: relative; z-index: 100;
     }
-    .search-form { display: flex; gap: 10px; flex-wrap: wrap; }
-    .input-wrapper { flex: 1 1 280px; position: relative; }
+    .search-form { display: flex; gap: 10px; }
+    .input-wrapper { flex: 1; position: relative; }
     input[type="text"] {
-      width: 100%; padding: 13px 18px; background: #0b0c10; border: 1px solid #45a29e;
-      border-radius: 8px; color: #fff; font-size: 1rem; outline: none;
+      width: 100%; padding: 10px 16px; background: #0f141c; border: 1px solid #45a29e;
+      border-radius: 8px; color: #fff; font-size: 0.95rem; outline: none;
     }
     input[type="text"]:focus { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(102,252,241,0.5); }
     
     #suggestList {
       display: none; position: absolute; top: 105%; left: 0; right: 0;
       background: #141b22; border: 1px solid var(--neon-cyan); border-radius: 8px;
-      z-index: 1000; max-height: 220px; overflow-y: auto; list-style: none;
+      z-index: 1100; max-height: 220px; overflow-y: auto; list-style: none;
       box-shadow: 0 8px 25px rgba(0,0,0,0.8);
     }
     #suggestList li {
-      padding: 10px 15px; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #222;
+      padding: 9px 15px; cursor: pointer; font-size: 0.88rem; border-bottom: 1px solid #222;
       display: flex; align-items: center; gap: 8px;
     }
     #suggestList li:hover { background: #1f2833; color: var(--neon-cyan); }
 
     button {
-      padding: 12px 24px; font-weight: bold; border: none; border-radius: 8px;
-      cursor: pointer; transition: 0.2s; font-size: 0.95rem;
+      padding: 10px 20px; font-weight: bold; border: none; border-radius: 8px;
+      cursor: pointer; transition: 0.15s; font-size: 0.9rem;
     }
     .btn-primary { background: var(--neon-cyan); color: #0b0c10; }
     .btn-primary:hover { background: #45a29e; }
-    .btn-score { background: var(--neon-gold); color: #0b0c10; }
+    .btn-score { background: var(--neon-gold); color: #0b0c10; font-size: 0.82rem; padding: 7px 12px; }
     .btn-score:hover { background: #e6c200; }
 
-    /* Search Results Grid */
+    /* Hasil Pencarian Melayang (Floating Modal - Hanya ini yang di-scroll) */
     #searchResults {
-      display: none; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;
-      margin-top: 15px; padding-top: 15px; border-top: 1px solid #333; max-height: 350px; overflow-y: auto;
+      display: none; position: absolute; top: 110%; left: 0; right: 0;
+      background: rgba(15, 20, 28, 0.97); border: 2px solid var(--neon-cyan);
+      border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;
+      padding: 14px; max-height: 60vh; overflow-y: auto; z-index: 2000;
+      backdrop-filter: blur(10px);
     }
     .search-title-bar {
       grid-column: 1/-1; display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 4px; color: var(--neon-cyan); font-size: 0.9rem; font-weight: bold;
+      margin-bottom: 6px; color: var(--neon-cyan); font-size: 0.9rem; font-weight: bold;
     }
     .result-item {
-      background: #141b22; border-radius: 8px; padding: 10px; cursor: pointer;
+      background: #141b22; border-radius: 8px; padding: 8px; cursor: pointer;
       display: flex; gap: 10px; align-items: center; transition: 0.2s; border: 1px solid #333;
     }
     .result-item:hover { border-color: var(--neon-cyan); background: #1c2631; transform: translateY(-2px); }
-    .result-item img { width: 90px; height: 58px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: #000; }
-    .result-item-info { font-size: 0.82rem; overflow: hidden; display: flex; flex-direction: column; gap: 4px; }
+    .result-item img { width: 84px; height: 52px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: #000; }
+    .result-item-info { font-size: 0.8rem; overflow: hidden; display: flex; flex-direction: column; gap: 3px; }
     .result-item-info strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #fff; line-height: 1.2; }
-    .result-item-info span { color: var(--neon-green); font-size: 0.75rem; font-weight: bold; }
+    .result-item-info span { color: var(--neon-green); font-size: 0.72rem; font-weight: bold; }
 
-    /* Stage */
+    /* === PANGGUNG UTAMA (VIDEO & LIRIK JAUH LEBIH BESAR) === */
     .stage-container {
-      display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px;
-      width: 100%; max-width: 1200px; position: relative;
+      display: grid;
+      grid-template-columns: 1.75fr 1.25fr;
+      gap: 16px;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      position: relative;
     }
+    
     .video-box {
-      background: #000; border-radius: 12px; overflow: hidden;
-      aspect-ratio: 16/9; position: relative; border: 1px solid #333; width: 100%;
-      display: flex; justify-content: center; align-items: center;
+      background: #000; border-radius: 14px; overflow: hidden;
+      height: 100%; width: 100%; position: relative;
+      border: 2px solid #2a3441; display: flex; justify-content: center; align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
     #playerContainer { width: 100%; height: 100%; position: relative; }
     #playerContainer iframe { width: 100%; height: 100%; border: none; }
@@ -188,15 +207,15 @@
       display: flex; flex-direction: column; justify-content: center; align-items: center;
       text-align: center; padding: 20px; z-index: 10;
     }
-    #standbyScreen span { font-size: 3.5rem; margin-bottom: 10px; filter: drop-shadow(0 0 10px var(--neon-cyan)); }
-    #standbyScreen h3 { color: var(--neon-cyan); font-size: 1.3rem; margin-bottom: 6px; }
-    #standbyScreen p { color: var(--text-muted); font-size: 0.9rem; max-width: 420px; }
+    #standbyScreen span { font-size: 4.5rem; margin-bottom: 12px; filter: drop-shadow(0 0 15px var(--neon-cyan)); }
+    #standbyScreen h3 { color: var(--neon-cyan); font-size: 1.6rem; margin-bottom: 8px; }
+    #standbyScreen p { color: var(--text-muted); font-size: 1rem; max-width: 450px; }
 
     #booOverlay {
       display: none; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-      background: rgba(255, 0, 0, 0.9); color: #fff; padding: 15px 35px; border-radius: 50px;
-      font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 900; z-index: 100;
-      box-shadow: 0 0 35px rgba(255,0,0,0.9); animation: shake 0.5s infinite; pointer-events: none;
+      background: rgba(255, 0, 0, 0.92); color: #fff; padding: 18px 40px; border-radius: 50px;
+      font-size: 2.2rem; font-weight: 900; z-index: 100;
+      box-shadow: 0 0 40px rgba(255,0,0,0.9); animation: shake 0.5s infinite; pointer-events: none;
     }
     @keyframes shake {
       0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -205,72 +224,91 @@
       75% { transform: translate(-52%, -52%) rotate(-3deg); }
     }
 
-    /* Lyrics Box */
+    /* Box Lirik Samping */
     .lyrics-box {
-      background: var(--card-bg); border-radius: 12px; padding: clamp(12px, 2vw, 20px);
-      display: flex; flex-direction: column; height: 100%; min-height: 380px; max-height: 520px;
-      border: 1px solid rgba(255, 255, 255, 0.1); position: relative;
+      background: var(--card-bg); border-radius: 14px; padding: 16px;
+      display: flex; flex-direction: column; height: 100%; min-height: 0;
+      border: 2px solid rgba(102, 252, 241, 0.25); position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
-    .lyrics-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
-    .lyrics-header h3 { color: var(--neon-pink); font-size: clamp(1rem, 2vw, 1.2rem); }
-    .lyrics-tools { display: flex; gap: 6px; align-items: center; font-size: 0.8rem; }
-    .lyrics-tools button { padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; }
-    .lyrics-hint { font-size: 0.8rem; color: var(--neon-cyan); margin-bottom: 8px; text-align: center; }
+    .lyrics-header {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 6px; flex-shrink: 0;
+    }
+    .lyrics-header h3 { color: var(--neon-pink); font-size: 1.25rem; font-weight: bold; }
+    .lyrics-tools { display: flex; gap: 6px; align-items: center; font-size: 0.85rem; }
+    .lyrics-tools button { padding: 4px 10px; font-size: 0.8rem; border-radius: 5px; }
+    .lyrics-hint { font-size: 0.78rem; color: var(--neon-cyan); margin-bottom: 6px; text-align: center; flex-shrink: 0; }
     
     .lyrics-scroll {
-      flex: 1; overflow-y: auto; text-align: center;
-      display: flex; flex-direction: column; gap: 12px; padding: 40px 10px;
-      position: relative;
-      overscroll-behavior: contain;
+      flex: 1; min-height: 0; overflow-y: auto; text-align: center;
+      display: flex; flex-direction: column; gap: 14px; padding: 50px 12px;
+      position: relative; overscroll-behavior: contain;
     }
     
     .lyrics-line {
-      font-size: clamp(1.05rem, 1.8vw, 1.25rem);
-      color: #6c757d;
-      padding: 8px 14px;
-      border-radius: 8px;
+      font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+      color: #7b889b;
+      padding: 10px 16px;
+      border-radius: 10px;
       cursor: pointer;
       user-select: none;
       line-height: 1.45;
+      font-weight: 600;
       transform-origin: center center;
-      transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+      transition: all 0.25s ease;
     }
-    .lyrics-line:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .lyrics-line:hover { color: #fff; background: rgba(255,255,255,0.08); }
     
     .lyrics-line.active {
       color: var(--neon-cyan);
-      font-weight: 800;
-      text-shadow: 0 0 16px rgba(102, 252, 241, 0.8);
-      background: rgba(102, 252, 241, 0.12);
+      font-weight: 900;
+      font-size: clamp(1.35rem, 2.1vw, 1.85rem);
+      text-shadow: 0 0 20px rgba(102, 252, 241, 0.9);
+      background: rgba(102, 252, 241, 0.15);
+      border: 1px solid rgba(102, 252, 241, 0.3);
       transform: scale(1.05);
     }
 
     #resumeSyncBtn {
       display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-      background: var(--neon-pink); color: #fff; font-size: 0.8rem; font-weight: bold;
-      padding: 6px 14px; border-radius: 20px; border: none; cursor: pointer; z-index: 20;
-      box-shadow: 0 4px 15px rgba(255,0,127,0.5);
+      background: var(--neon-pink); color: #fff; font-size: 0.85rem; font-weight: bold;
+      padding: 7px 18px; border-radius: 20px; border: none; cursor: pointer; z-index: 20;
+      box-shadow: 0 4px 15px rgba(255,0,127,0.6);
     }
     #resumeSyncBtn:hover { transform: translateX(-50%) scale(1.05); }
 
-    /* Bottom Panel */
+    /* === SOUNDBOARD ULTRA RESPONSIF === */
     .bottom-panel {
-      display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px;
-      width: 100%; max-width: 1200px; margin-top: 20px;
+      width: 100%; flex-shrink: 0;
     }
-    .card { background: var(--card-bg); padding: clamp(12px, 2vw, 18px); border-radius: 12px; border: 1px solid #333; }
-    .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 5px; }
-    .card h4 { color: var(--text-muted); font-size: 0.95rem; text-transform: uppercase; }
-
-    .soundboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
+    .card-soundboard {
+      background: #141b22; padding: 8px 14px; border-radius: 10px;
+      border: 1px solid #333; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .soundboard-left {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .soundboard-grid {
+      display: flex; gap: 8px; flex: 1;
+    }
     .btn-sound {
-      background: #2b323c; color: #fff; padding: 12px 5px; font-size: 0.85rem;
-      border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: 5px; font-weight: bold;
+      background: #232c38; color: #fff; padding: 8px 15px; font-size: 0.82rem;
+      border-radius: 7px; display: flex; align-items: center; gap: 6px; font-weight: bold;
+      user-select: none; -webkit-user-select: none; touch-action: manipulation;
+      cursor: pointer;
     }
-    .btn-sound:hover { background: var(--neon-pink); transform: scale(1.03); }
-    .btn-sound span { font-size: 1.5rem; }
+    .btn-sound:hover { background: #323d4e; }
+    /* Visual responsif instan saat tombol disentuh/ditekan */
+    .btn-sound:active {
+      transform: scale(0.93) !important;
+      background: var(--neon-pink) !important;
+      color: #fff !important;
+      box-shadow: 0 0 12px var(--neon-pink);
+    }
+    .btn-sound span { font-size: 1.15rem; pointer-events: none; }
     .btn-boo { background: #4a151b; border: 1px solid var(--neon-red); color: #ff9999; }
-    .btn-boo:hover { background: var(--neon-red); color: #fff; }
+    .btn-boo:active { background: var(--neon-red) !important; }
 
     /* Modals */
     .modal-backdrop {
@@ -283,14 +321,8 @@
       box-shadow: 0 0 35px rgba(102, 252, 241, 0.4); text-align: center;
     }
     .score-number {
-      font-size: clamp(4rem, 8vw, 5.5rem); font-weight: 900; color: var(--neon-gold);
+      font-size: clamp(4rem, 7vw, 5.5rem); font-weight: 900; color: var(--neon-gold);
       text-shadow: 0 0 25px rgba(255,215,0,0.8); margin: 5px 0;
-    }
-
-    @media(max-width: 950px) {
-      .stage-container, .bottom-panel { grid-template-columns: 1fr; }
-      .header-btns { position: static; margin-top: 10px; justify-content: center; }
-      .lyrics-box { height: 380px; }
     }
   </style>
 </head>
@@ -308,13 +340,16 @@
         <button type="button" class="btn-toggle-pass" onclick="toggleLihatPassword()" title="Lihat/Sembunyikan password">👁️</button>
       </div>
 
-      <!-- Pilih Durasi Karaoke -->
+      <!-- Pilihan Durasi Bernyanyi Hingga 6 Jam -->
       <div class="duration-group">
-        <label for="durationSelect">⏱️ Pilih Waktu Bernyanyi:</label>
+        <label for="durationSelect">⏱️ Durasi Bernyanyi:</label>
         <select id="durationSelect" class="duration-select">
           <option value="60">1 Jam (60 Menit)</option>
           <option value="120">2 Jam (120 Menit)</option>
           <option value="180">3 Jam (180 Menit)</option>
+          <option value="240">4 Jam (240 Menit)</option>
+          <option value="300">5 Jam (300 Menit)</option>
+          <option value="360" selected>6 Jam (360 Menit)</option>
           <option value="1">1 Menit (Mode Tes Singkat)</option>
         </select>
       </div>
@@ -322,13 +357,15 @@
       <div id="lockErrorMsg" class="lock-err">⚠️ Password salah! Silakan coba lagi.</div>
       <div id="lockAlertMsg" class="lock-alert">⏰ Waktu karaoke Anda telah habis! Silakan buka kembali dengan sandi.</div>
       
-      <button class="btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;" onclick="verifikasiPassword()">🔓 Buka Studio</button>
+      <button class="btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;" onclick="verifikasiPassword()">🔓 Buka Studio & Full Screen</button>
     </div>
   </div>
 
   <header>
-    <h1>ALIBIA BIIH KARAOKE🎤</h1>
-    <p>PARUNG BOGOR</p>
+    <div class="header-left">
+      <h1>ALIBIA BIIH KARAOKE🎤</h1>
+      <span>PARUNG BOGOR</span>
+    </div>
     <div>
       <div id="sessionTimerDisplay" class="session-timer-badge">⏳ 00:00:00</div>
     </div>
@@ -349,11 +386,11 @@
       <button class="btn-primary" id="searchBtn" onclick="cariInstrumenKaraoke()">🔍 Cari Instrumen</button>
     </div>
 
-    <!-- Kotak Hasil Pencarian -->
+    <!-- Kotak Hasil Pencarian Melayang -->
     <div id="searchResults"></div>
   </div>
 
-  <!-- Panggung Utama & Lirik Samping -->
+  <!-- Panggung Utama (Video & Lirik Ekstra Besar) -->
   <div class="stage-container">
     <div class="video-box">
       <div id="standbyScreen">
@@ -369,7 +406,7 @@
     <!-- Box Lirik Samping -->
     <div class="lyrics-box">
       <div class="lyrics-header">
-        <h3>📜 Lirik Sinkron Otomatis</h3>
+        <h3>📜 Lirik Sinkron</h3>
         <div class="lyrics-tools">
           <button style="background:#2b323c; color:#fff;" onclick="bukaModalManualLirik()" title="Tempel lirik sendiri">📝 Input Lirik</button>
           <button style="background:var(--neon-cyan); color:#000;" onclick="adjustOffset(-0.5)">-0.5s</button>
@@ -380,50 +417,34 @@
       <div class="lyrics-hint">💡 Bebas scroll lirik kapan saja tanpa takut ditarik paksa!</div>
       
       <div class="lyrics-scroll" id="lyricsContainer">
-        <p style="color: #666; margin-top: 50px;">Lirik akan muncul otomatis di samping saat lagu diputar...</p>
+        <p style="color: #666; margin-top: 60px; font-size: 1.1rem;">Lirik akan muncul otomatis di samping saat lagu diputar...</p>
       </div>
       
       <button id="resumeSyncBtn" onclick="lanjutkanAutoScroll()">🔄 Ikuti Lirik Lagu</button>
     </div>
   </div>
 
-  <!-- Panel Bawah -->
+  <!-- Soundboard Cepat (Event onpointerdown untuk Zero-Delay) -->
   <div class="bottom-panel">
-    <!-- Soundboard -->
-    <div class="card">
-      <div class="card-header-flex">
-        <h4>🔥 Efek Sorakan Penonton</h4>
-        <div style="display: flex; align-items: center; gap: 8px;">
+    <div class="card-soundboard">
+      <div class="soundboard-left">
+        <h4 style="color: var(--neon-cyan); font-size: 0.82rem; text-transform: uppercase;">🔥 Efek Suara</h4>
+        <div style="display: flex; align-items: center; gap: 6px;">
           <span style="font-size: 0.75rem; color: var(--neon-green); font-weight: bold;" id="boostLabel">VOL: 100%</span>
-          <input type="range" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updateFxBoost(this.value)" style="width: 80px;">
+          <input type="range" min="0.5" max="2.0" step="0.1" value="1.0" oninput="updateFxBoost(this.value)" style="width: 70px;">
         </div>
       </div>
 
       <div class="soundboard-grid">
-        <button class="btn-sound" onclick="playRealSound('applause')"><span>👏</span>Tepuk Tangan</button>
-        <button class="btn-sound" onclick="playRealSound('cheer')"><span>🏟️</span>Sorak Heboh</button>
-        <button class="btn-sound btn-boo" onclick="playRealSound('boo')"><span>👎</span>BOOO! (Meledek)</button>
-        <button class="btn-sound" onclick="playRealSound('airhorn')"><span>🚨</span>DJ Air Horn</button>
-        <button class="btn-sound" onclick="playRealSound('victory')"><span>🎺</span>Terompet Juara</button>
+        <button class="btn-sound" onpointerdown="playRealSound('applause')"><span>👏</span>Tepuk Tangan</button>
+        <button class="btn-sound" onpointerdown="playRealSound('cheer')"><span>🏟️</span>Sorak Heboh</button>
+        <button class="btn-sound btn-boo" onpointerdown="playRealSound('boo')"><span>👎</span>BOOO!</button>
+        <button class="btn-sound" onpointerdown="playRealSound('airhorn')"><span>🚨</span>DJ Air Horn</button>
+        <button class="btn-sound" onpointerdown="playRealSound('victory')"><span>🎺</span>Terompet</button>
       </div>
-    </div>
 
-    <!-- Status & Kontrol Skor -->
-    <div class="card">
-      <div class="card-header-flex">
-        <h4>🎤 Status Karaoke</h4>
-        <span style="font-size: 0.75rem; background: rgba(57, 255, 20, 0.12); color: var(--neon-green); border: 1px solid var(--neon-green); padding: 4px 10px; border-radius: 20px; font-weight: bold;">
-          ● Mode Mic Eksternal
-        </span>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 14px;">
-        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
-          Studio privat aktif. Bernyanyilah langsung menggunakan mikrofon eksternal Anda. Skor karaoke otomatis dinilai secara acak begitu lagu tamat!
-        </p>
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-          <button class="btn-score" onclick="hitungSkorOtomatis(true)">🏁 Tes Munculkan Skor</button>
-          <span style="font-size: 0.75rem; color: var(--neon-cyan);">Auto-Skor: Deteksi Akhir Lagu</span>
-        </div>
+      <div>
+        <button class="btn-score" onclick="hitungSkorOtomatis(true)">🏁 Tes Skor</button>
       </div>
     </div>
   </div>
@@ -474,6 +495,14 @@
     const MASTER_PASSWORD = "khairi";
     let sessionCountdownInterval = null;
 
+    function masukLayarPenuhOtomatis() {
+      if (!document.fullscreenElement) {
+        const el = document.documentElement;
+        const rfs = el.requestFullscreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+        if (rfs) rfs.call(el).catch(() => {});
+      }
+    }
+
     function formatTimeRemaining(totalSeconds) {
       const h = Math.floor(totalSeconds / 3600);
       const m = Math.floor((totalSeconds % 3600) / 60);
@@ -500,7 +529,6 @@
 
         timerElem.innerText = `⏳ ${formatTimeRemaining(diff)}`;
 
-        // Peringatan merah jika waktu tersisa di bawah 5 menit (300 detik)
         if (diff < 300) {
           timerElem.classList.add('warning');
         } else {
@@ -519,10 +547,17 @@
 
       if (isUnlocked === 'true' && expiresAt > now) {
         document.getElementById('privateLockGate').style.display = 'none';
-        startSessionTimer(expiresAt);
+        startSessionTimer(expiryTimestamp = expiresAt);
+
+        // Jika halaman di-refresh dalam kondisi terbuka, aktifkan fullscreen pada klik pertama pengguna
+        const pemicuFullscreen = () => {
+          masukLayarPenuhOtomatis();
+          initAudioSystem();
+          document.removeEventListener('click', pemicuFullscreen);
+        };
+        document.addEventListener('click', pemicuFullscreen);
       } else {
         if (isUnlocked === 'true' && expiresAt <= now) {
-          // Bila sesi kadaluarsa saat browser dibuka kembali
           kunciUlangStudio(true);
         } else {
           document.getElementById('privateLockGate').style.display = 'flex';
@@ -536,7 +571,7 @@
       const input = document.getElementById('passInput').value;
       const err = document.getElementById('lockErrorMsg');
       const alertMsg = document.getElementById('lockAlertMsg');
-      const durasiMenit = parseInt(document.getElementById('durationSelect').value, 10) || 60;
+      const durasiMenit = parseInt(document.getElementById('durationSelect').value, 10) || 360;
 
       if (input === MASTER_PASSWORD) {
         const expiryTimestamp = Date.now() + (durasiMenit * 60 * 1000);
@@ -546,6 +581,10 @@
         document.getElementById('privateLockGate').style.display = 'none';
         err.style.display = 'none';
         alertMsg.style.display = 'none';
+
+        // Langsung masuk fullscreen dan siapkan audio engine
+        masukLayarPenuhOtomatis();
+        initAudioSystem();
 
         startSessionTimer(expiryTimestamp);
       } else {
@@ -566,14 +605,13 @@
       sessionStorage.removeItem('biih_karaoke_unlocked');
       sessionStorage.removeItem('biih_karaoke_expiry');
 
-      // Hentikan pemutaran lagu jika ada
       if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
         try { ytPlayer.stopVideo(); } catch (e) {}
       }
       if (lyricTimer) clearInterval(lyricTimer);
       document.getElementById('playerContainer').innerHTML = '';
       document.getElementById('standbyScreen').style.display = 'flex';
-      document.getElementById('lyricsContainer').innerHTML = '<p style="color: #666; margin-top: 50px;">Lirik akan muncul otomatis di samping saat lagu diputar...</p>';
+      document.getElementById('lyricsContainer').innerHTML = '<p style="color: #666; margin-top: 60px; font-size: 1.1rem;">Lirik akan muncul otomatis di samping saat lagu diputar...</p>';
 
       document.getElementById('passInput').value = '';
       document.getElementById('lockErrorMsg').style.display = 'none';
@@ -589,10 +627,9 @@
       document.getElementById('passInput').focus();
     }
 
-    // Periksa password dan waktu saat web pertama kali dibuka
     window.addEventListener('DOMContentLoaded', periksaStatusKunci);
 
-    // === 1. AUDIO SOUNDBOARD ===
+    // === 1. ENGINE AUDIO ZERO-DELAY (WEB AUDIO API & PRELOADED MEMORI) ===
     let soundMasterVolume = 1.0;
     const SOUND_URLS = {
       applause: 'https://cdn.jsdelivr.net/gh/bradtraversy/50projects50days@master/sound-board/sounds/applause.mp3',
@@ -602,24 +639,88 @@
       airhorn: 'https://cdn.jsdelivr.net/gh/mecvg/macboard@main/sounds/airhorn.mp3'
     };
 
+    let audioCtx = null;
+    const soundBuffers = {};
+    const fallbackAudios = {};
+
+    function initAudioSystem() {
+      if (!audioCtx) {
+        const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtxClass) {
+          audioCtx = new AudioCtxClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // Preload seluruh file audio ke RAM saat pertama kali web dibuka
+    async function preloadAllSoundAssets() {
+      for (const [key, url] of Object.entries(SOUND_URLS)) {
+        // 1. Siapkan HTML Audio element
+        const a = new Audio();
+        a.src = url;
+        a.preload = 'auto';
+        fallbackAudios[key] = a;
+
+        // 2. Unduh dan decode langsung ke AudioBuffer RAM untuk latensi 0ms
+        fetch(url)
+          .then(res => res.arrayBuffer())
+          .then(arrayBuffer => {
+            if (!audioCtx) {
+              const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+              if (AudioCtxClass) audioCtx = new AudioCtxClass();
+            }
+            if (audioCtx) {
+              return audioCtx.decodeAudioData(arrayBuffer);
+            }
+          })
+          .then(decodedBuf => {
+            if (decodedBuf) soundBuffers[key] = decodedBuf;
+          })
+          .catch(() => {});
+      }
+    }
+    preloadAllSoundAssets();
+
     function updateFxBoost(val) {
       soundMasterVolume = parseFloat(val);
       document.getElementById('boostLabel').innerText = `VOL: ${Math.round(soundMasterVolume * 100)}%`;
     }
 
     function playRealSound(type) {
-      const url = SOUND_URLS[type];
-      if (!url) return;
+      initAudioSystem();
+
       if (type === 'boo') {
         const overlay = document.getElementById('booOverlay');
         overlay.style.display = 'block';
-        setTimeout(() => overlay.style.display = 'none', 3000);
+        clearTimeout(window.booTimer);
+        window.booTimer = setTimeout(() => overlay.style.display = 'none', 2500);
       }
-      try {
-        const audio = new Audio(url);
-        audio.volume = Math.min(1.0, soundMasterVolume);
-        audio.play().catch(() => {});
-      } catch (e) {}
+
+      // Prioritas 1: Web Audio Buffer (0-latency, langsung bunyi seketika)
+      if (audioCtx && soundBuffers[type]) {
+        try {
+          const source = audioCtx.createBufferSource();
+          source.buffer = soundBuffers[type];
+          const gainNode = audioCtx.createGain();
+          gainNode.gain.value = soundMasterVolume;
+          source.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          source.start(0);
+          return;
+        } catch (e) {}
+      }
+
+      // Prioritas 2: Fallback instan menggunakan clone HTML5 Audio
+      if (fallbackAudios[type]) {
+        try {
+          const clone = fallbackAudios[type].cloneNode();
+          clone.volume = Math.min(1.0, soundMasterVolume);
+          clone.play().catch(() => {});
+        } catch (e) {}
+      }
     }
 
     // === 2. PLAYER SISTEM & SINKRONISASI LIRIK ===
@@ -923,8 +1024,8 @@
       if (foundVideos.length > 0) {
         resultsContainer.innerHTML = `
           <div class="search-title-bar">
-            <span>👇 Pilih versi instrumen yang Anda suka (klik untuk langsung putar):</span>
-            <button onclick="document.getElementById('searchResults').style.display='none'" style="background:transparent; color:#ff9999; padding:2px 8px; font-size:0.75rem; border:1px solid #ff3333; border-radius:4px;">✖ Tutup</button>
+            <span>👇 Pilih trek karaoke (hanya kotak ini yang bisa di-scroll):</span>
+            <button onclick="document.getElementById('searchResults').style.display='none'" style="background:transparent; color:#ff9999; padding:3px 10px; font-size:0.8rem; border:1px solid #ff3333; border-radius:6px; cursor:pointer;">✖ Tutup Hasil</button>
           </div>
         ` + foundVideos.map(v => {
           const safeTitleJs = v.title.replace(/'/g, "\\'");
@@ -953,7 +1054,7 @@
     // === 5. MESIN LIRIK SINKRON ===
     async function ambilLirikMultiTahap(videoTitle) {
       const container = document.getElementById('lyricsContainer');
-      container.innerHTML = '<p style="color: var(--neon-cyan)">⏳ Mengambil lirik sinkron...</p>';
+      container.innerHTML = '<p style="color: var(--neon-cyan); font-size: 1.1rem; margin-top: 60px;">⏳ Mengambil lirik sinkron...</p>';
       syncedLyrics = [];
       currentActiveLyricIndex = -1;
 
@@ -1020,9 +1121,9 @@
       if (!lyricFound) {
         container.innerHTML = `
           <div style="padding: 20px 10px; color: #aaa;">
-            <p style="color: var(--neon-pink); font-weight: bold; margin-bottom: 8px;">Lirik cloud belum tersedia untuk lagu ini.</p>
-            <p style="font-size: 0.85rem; margin-bottom: 15px;">Anda tetap bisa bernyanyi mengikuti lirik di video, atau tempel lirik sendiri:</p>
-            <button class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="bukaModalManualLirik()">
+            <p style="color: var(--neon-pink); font-weight: bold; font-size: 1.1rem; margin-bottom: 8px;">Lirik cloud belum tersedia untuk lagu ini.</p>
+            <p style="font-size: 0.9rem; margin-bottom: 15px;">Anda tetap bisa bernyanyi mengikuti lirik di video, atau tempel lirik sendiri:</p>
+            <button class="btn-primary" style="padding: 10px 18px; font-size: 0.9rem;" onclick="bukaModalManualLirik()">
               📝 Tempel Lirik Sekarang
             </button>
           </div>
@@ -1148,9 +1249,7 @@
 
     function toggleFullscreen() {
       if (!document.fullscreenElement) {
-        const el = document.documentElement;
-        const rfs = el.requestFullscreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
-        if (rfs) rfs.call(el).catch(() => {});
+        masukLayarPenuhOtomatis();
       } else {
         if (document.exitFullscreen) document.exitFullscreen();
       }
